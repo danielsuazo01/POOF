@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>POOF* — Make it vanish.</title>
+<style>
+  :root{
+    --paper:#F2EDE3;
+    --paper-2:#E8E1D2;
+    --ink:#1A1A1A;
+    --ink-2:#2E2E2E;
+    --yellow:#F8E63C;
+    --yellow-2:#FFD400;
+    --red:#D43A2F;
+    --olive:#5C6342;
+    --muted:#6b6b6b;
+    --line:rgba(26,26,26,.15);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{background:var(--paper);color:var(--ink);font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased;}
+
+  /* TOP STRIP */
+  .strip{background:var(--ink);color:var(--paper);text-align:center;font-size:11px;letter-spacing:.18em;text-transform:uppercase;padding:8px;}
+  .strip strong{color:var(--yellow);}
+
+  /* HEADER */
+  header{position:sticky;top:0;background:var(--paper);border-bottom:1px solid var(--line);z-index:50;}
+  .header-inner{max-width:1400px;margin:0 auto;padding:18px 32px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:24px;}
+  .nav-left,.nav-right{display:flex;gap:24px;align-items:center;}
+  .nav-right{justify-content:flex-end;}
+  .logo{font-size:32px;font-weight:900;letter-spacing:-0.03em;text-align:center;line-height:1;}
+  .logo .ast{color:var(--red);}
+  .nav a{text-decoration:none;color:var(--ink);font-size:13px;font-weight:500;letter-spacing:.01em;}
+  .nav a:hover{color:var(--red);}
+  .cart{position:relative;font-size:20px;cursor:pointer;}
+  .cart-count{position:absolute;top:-8px;right:-12px;background:var(--red);color:#fff;font-size:10px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;}
+
+  /* PAGE NAV */
+  .pagenav{background:var(--paper-2);border-bottom:1px solid var(--line);padding:12px 0;font-size:12px;text-align:center;}
+  .pagenav a{margin:0 14px;color:var(--ink);text-decoration:none;letter-spacing:.06em;text-transform:uppercase;font-weight:600;opacity:.5;cursor:pointer;}
+  .pagenav a.active{opacity:1;border-bottom:2px solid var(--red);padding-bottom:6px;}
+  .pagenav a:hover{opacity:1;}
+
+  /* PAGES */
+  .page{display:none;}
+  .page.active{display:block;animation:fade .3s;}
+  @keyframes fade{from{opacity:0;}to{opacity:1;}}
+
+  /* HOME HERO */
+  .hero{padding:80px 32px 60px;max-width:1400px;margin:0 auto;}
+  .hero-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:48px;align-items:end;}
+  @media (max-width:900px){.hero-grid{grid-template-columns:1fr;}}
+  .hero h1{font-size:clamp(64px,12vw,180px);font-weight:900;line-height:.88;letter-spacing:-0.045em;}
+  .hero h1 .ast{color:var(--red);font-size:.5em;vertical-align:super;}
+  .hero h1 .tail{display:block;font-style:italic;font-weight:300;font-size:.45em;letter-spacing:-0.01em;margin-top:14px;}
+  .hero-meta{font-size:14px;padding-top:20px;border-top:1px solid var(--ink);}
+  .hero-meta strong{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:4px;}
+  .hero-cta{margin-top:32px;display:flex;gap:14px;flex-wrap:wrap;}
+  .btn{display:inline-block;padding:14px 28px;background:var(--ink);color:var(--paper);text-decoration:none;font-weight:600;letter-spacing:.04em;text-transform:uppercase;font-size:12px;border:0;cursor:pointer;transition:transform .2s;}
+  .btn:hover{transform:translateY(-2px);}
+  .btn.yellow{background:var(--yellow);color:var(--ink);}
+  .btn.outline{background:transparent;color:var(--ink);border:2px solid var(--ink);}
+
+  /* SCROLLING MARQUEE */
+  .marquee{background:var(--ink);color:var(--paper);padding:18px 0;overflow:hidden;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);}
+  .marquee-inner{display:flex;gap:64px;animation:scroll 30s linear infinite;white-space:nowrap;}
+  .marquee-inner span{font-size:32px;font-weight:900;letter-spacing:-0.02em;}
+  .marquee-inner .star{color:var(--yellow);}
+  @keyframes scroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+  /* PRODUCT GRID */
+  .section{max-width:1400px;margin:0 auto;padding:80px 32px;}
+  .eyebrow{display:inline-block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;background:var(--ink);color:var(--paper);padding:6px 12px;margin-bottom:18px;font-weight:600;}
+  .section h2{font-size:clamp(36px,5vw,72px);font-weight:900;line-height:1;letter-spacing:-0.03em;margin-bottom:18px;}
+  .section h2 .ast{color:var(--red);}
+  .section .lead{font-size:18px;max-width:700px;margin-bottom:48px;color:var(--ink-2);}
+
+  .product-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;}
+  @media (max-width:900px){.product-grid{grid-template-columns:repeat(2,1fr);}}
+  @media (max-width:600px){.product-grid{grid-template-columns:1fr;}}
+  .product-card{background:#fff;padding:0;overflow:hidden;cursor:pointer;transition:transform .3s;border:1px solid var(--line);}
+  .product-card:hover{transform:translateY(-4px);}
+  .pc-img{aspect-ratio:1;display:flex;align-items:center;justify-content:center;position:relative;}
+  .pc-img.hero-bg{background:linear-gradient(135deg,var(--yellow) 0%,var(--yellow-2) 100%);}
+  .pc-img.sport-bg{background:linear-gradient(135deg,var(--red) 0%,#B82E25 100%);}
+  .pc-img.smoke-bg{background:linear-gradient(135deg,var(--ink) 0%,#2E2E2E 100%);}
+  .pc-img.drive-bg{background:linear-gradient(135deg,var(--olive) 0%,#414832 100%);}
+  .bottle{width:60%;height:80%;background:rgba(255,255,255,.92);border-radius:8px 8px 0 0;position:relative;box-shadow:0 12px 36px rgba(0,0,0,.18);}
+  .bottle:before{content:"";position:absolute;top:-32px;left:50%;transform:translateX(-50%);width:18px;height:34px;background:var(--ink);border-radius:3px;}
+  .bottle:after{content:"";position:absolute;top:-12px;left:50%;transform:translateX(-50%);width:34px;height:18px;background:#444;border-radius:2px;}
+  .bottle-label{position:absolute;top:38%;left:50%;transform:translate(-50%,-50%);text-align:center;width:80%;}
+  .bottle-label .pname{font-size:28px;font-weight:900;letter-spacing:-0.02em;color:var(--ink);line-height:.9;}
+  .bottle-label .pname .ast{color:var(--red);}
+  .bottle-label .ptype{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-top:8px;}
+  .bottle-label .pvol{font-size:9px;color:var(--muted);margin-top:14px;font-weight:600;}
+
+  .pc-info{padding:20px 24px 24px;}
+  .pc-tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+  .pc-name{font-size:24px;font-weight:900;letter-spacing:-0.02em;margin-bottom:4px;}
+  .pc-name .ast{color:var(--red);}
+  .pc-desc{font-size:13px;color:var(--ink-2);margin-bottom:14px;min-height:36px;}
+  .pc-bottom{display:flex;justify-content:space-between;align-items:center;}
+  .pc-price{font-size:22px;font-weight:900;letter-spacing:-0.02em;}
+  .pc-price .from{font-size:11px;font-weight:400;color:var(--muted);text-transform:uppercase;margin-right:4px;letter-spacing:.08em;}
+  .pc-add{background:var(--ink);color:var(--paper);border:0;padding:10px 18px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;}
+
+  /* DISCOVERY BAR */
+  .discovery{background:var(--yellow);padding:80px 32px;}
+  .discovery-inner{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:1.2fr 1fr;gap:48px;align-items:center;}
+  @media (max-width:900px){.discovery-inner{grid-template-columns:1fr;}}
+  .discovery h2{font-size:clamp(40px,6vw,84px);}
+  .discovery-visual{display:flex;gap:8px;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.04);padding:32px;border-radius:6px;}
+  .small-bottle{width:50px;height:120px;background:rgba(255,255,255,.95);border-radius:4px 4px 0 0;box-shadow:0 6px 18px rgba(0,0,0,.18);position:relative;}
+  .small-bottle:before{content:"";position:absolute;top:-18px;left:50%;transform:translateX(-50%);width:14px;height:20px;background:var(--ink);border-radius:2px;}
+  .big-bottle{width:100px;height:200px;background:rgba(255,255,255,.95);border-radius:6px 6px 0 0;box-shadow:0 10px 28px rgba(0,0,0,.2);position:relative;display:flex;align-items:center;justify-content:center;}
+  .big-bottle:before{content:"";position:absolute;top:-28px;left:50%;transform:translateX(-50%);width:22px;height:30px;background:var(--ink);border-radius:3px;}
+  .big-bottle .name{font-size:18px;font-weight:900;letter-spacing:-0.02em;color:var(--ink);}
+  .big-bottle .name .ast{color:var(--red);}
+
+  /* MANIFESTO */
+  .manifesto{background:var(--ink);color:var(--paper);padding:100px 32px;}
+  .manifesto-inner{max-width:900px;margin:0 auto;}
+  .manifesto h2{font-size:clamp(36px,5vw,72px);font-weight:900;line-height:1;letter-spacing:-0.03em;margin-bottom:32px;color:var(--paper);}
+  .manifesto h2 .ast{color:var(--yellow);}
+  .manifesto p{font-size:20px;line-height:1.5;color:var(--paper);opacity:.9;margin-bottom:20px;font-weight:300;}
+  .manifesto p strong{color:var(--yellow);font-weight:600;}
+  .manifesto-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:64px;border-top:1px solid rgba(255,255,255,.2);padding-top:48px;}
+  @media (max-width:900px){.manifesto-grid{grid-template-columns:repeat(2,1fr);}}
+  .mg-item .num{font-size:48px;font-weight:900;color:var(--yellow);letter-spacing:-0.02em;}
+  .mg-item h4{font-size:14px;text-transform:uppercase;letter-spacing:.08em;margin:8px 0 6px;color:var(--paper);}
+  .mg-item p{font-size:13px;color:var(--paper);opacity:.7;}
+
+  /* JOURNAL */
+  .journal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+  @media (max-width:900px){.journal-grid{grid-template-columns:1fr;}}
+  .journal-card{background:#fff;padding:32px;border:1px solid var(--line);cursor:pointer;transition:transform .3s;}
+  .journal-card:hover{transform:translateY(-4px);}
+  .journal-card .jdate{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
+  .journal-card h3{font-size:22px;margin:14px 0 12px;letter-spacing:-0.02em;line-height:1.2;}
+  .journal-card p{font-size:14px;color:var(--ink-2);}
+  .journal-card .read{margin-top:18px;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--red);}
+
+  /* PRODUCT DETAIL PAGE */
+  .pdp{max-width:1400px;margin:0 auto;padding:60px 32px;}
+  .pdp-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:64px;align-items:flex-start;}
+  @media (max-width:900px){.pdp-grid{grid-template-columns:1fr;}}
+  .pdp-gallery{position:sticky;top:120px;}
+  .pdp-main-img{aspect-ratio:1;background:linear-gradient(135deg,var(--yellow) 0%,var(--yellow-2) 100%);display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+  .pdp-thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+  .pdp-thumb{aspect-ratio:1;background:var(--paper-2);cursor:pointer;border:2px solid transparent;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
+  .pdp-thumb.active{border-color:var(--ink);}
+  .pdp-info h1{font-size:48px;font-weight:900;letter-spacing:-0.03em;line-height:1;margin:8px 0 14px;}
+  .pdp-info h1 .ast{color:var(--red);}
+  .pdp-cat{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:700;}
+  .pdp-price{font-size:36px;font-weight:900;margin:24px 0 6px;}
+  .pdp-price .sub{font-size:14px;color:var(--muted);font-weight:400;margin-left:8px;}
+  .pdp-stars{font-size:12px;color:var(--ink-2);}
+  .pdp-stars .y{color:var(--yellow-2);font-size:14px;}
+  .pdp-desc{font-size:16px;color:var(--ink-2);margin:24px 0;line-height:1.6;}
+  .pdp-opt{margin-bottom:24px;}
+  .pdp-opt-label{font-size:11px;text-transform:uppercase;letter-spacing:.12em;font-weight:700;margin-bottom:8px;}
+  .pdp-opt-choices{display:flex;gap:8px;}
+  .pdp-opt-btn{padding:10px 18px;border:2px solid var(--ink);background:transparent;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;}
+  .pdp-opt-btn.active{background:var(--ink);color:var(--paper);}
+  .pdp-sub-toggle{background:var(--paper-2);padding:18px;margin:18px 0;}
+  .pdp-sub-toggle h4{font-size:14px;margin-bottom:6px;}
+  .pdp-sub-toggle p{font-size:12px;color:var(--ink-2);}
+  .pdp-sub-toggle .save{color:var(--red);font-weight:700;}
+  .pdp-add{display:flex;gap:12px;margin-top:24px;}
+  .pdp-add .btn-main{flex:1;padding:18px;background:var(--ink);color:var(--paper);font-size:14px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border:0;cursor:pointer;}
+  .pdp-tabs{margin-top:48px;border-top:1px solid var(--line);}
+  .pdp-tab{padding:18px 0;border-bottom:1px solid var(--line);cursor:pointer;font-weight:600;display:flex;justify-content:space-between;}
+  .pdp-tab span{transition:transform .2s;}
+  .pdp-tab.open span{transform:rotate(45deg);}
+  .pdp-tab-content{display:none;padding:0 0 18px;font-size:14px;color:var(--ink-2);}
+  .pdp-tab.open + .pdp-tab-content{display:block;}
+
+  /* REVIEWS */
+  .reviews-block{background:var(--paper-2);padding:80px 32px;}
+  .reviews-inner{max-width:1400px;margin:0 auto;}
+  .reviews-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+  @media (max-width:900px){.reviews-grid{grid-template-columns:1fr;}}
+  .review{background:#fff;padding:28px;border:1px solid var(--line);}
+  .review .stars{color:var(--yellow-2);font-size:14px;margin-bottom:8px;}
+  .review h4{font-size:16px;margin-bottom:8px;}
+  .review p{font-size:14px;color:var(--ink-2);}
+  .review .author{font-size:11px;color:var(--muted);margin-top:14px;letter-spacing:.06em;text-transform:uppercase;}
+
+  /* FOOTER */
+  footer{background:var(--ink);color:var(--paper);padding:80px 32px 32px;}
+  .footer-inner{max-width:1400px;margin:0 auto;}
+  .footer-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;padding-bottom:48px;border-bottom:1px solid rgba(255,255,255,.15);}
+  @media (max-width:900px){.footer-top{grid-template-columns:1fr 1fr;}}
+  .footer-brand h2{font-size:64px;font-weight:900;letter-spacing:-0.03em;line-height:1;color:var(--paper);}
+  .footer-brand h2 .ast{color:var(--yellow);}
+  .footer-brand p{font-size:14px;color:var(--paper);opacity:.6;margin-top:14px;max-width:300px;}
+  .footer-col h5{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--yellow);margin-bottom:18px;font-weight:600;}
+  .footer-col a{display:block;color:var(--paper);text-decoration:none;font-size:13px;margin-bottom:10px;opacity:.7;}
+  .footer-col a:hover{opacity:1;}
+  .footer-bottom{padding-top:32px;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--paper);opacity:.5;letter-spacing:.06em;text-transform:uppercase;}
+  @media (max-width:600px){.footer-bottom{flex-direction:column;gap:14px;}}
+
+  /* NEWSLETTER */
+  .news{background:var(--paper-2);padding:60px 32px;text-align:center;}
+  .news h3{font-size:36px;font-weight:900;letter-spacing:-0.02em;margin-bottom:8px;}
+  .news h3 .ast{color:var(--red);}
+  .news p{font-size:15px;color:var(--ink-2);max-width:500px;margin:0 auto 24px;}
+  .news-form{display:flex;gap:8px;max-width:480px;margin:0 auto;}
+  .news-form input{flex:1;padding:14px 16px;border:1px solid var(--ink);background:transparent;font-size:14px;outline:none;}
+  .news-form button{padding:14px 22px;background:var(--ink);color:var(--paper);border:0;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;}
+
+  /* COMING SOON BANNER */
+  .preview-banner{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--red);color:#fff;padding:10px 20px;border-radius:99px;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;z-index:100;box-shadow:0 8px 24px rgba(212,58,47,.4);}
+</style>
+</head>
+<body>
+
+<!-- TOP STRIP -->
+<div class="strip">Envío gratis &gt;€30 · 30 días de garantía · <strong>Suscripción -15%</strong></div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <div class="nav-left nav">
+      <a onclick="showPage('shop')">Shop</a>
+      <a onclick="showPage('discovery')">Discovery</a>
+      <a onclick="showPage('manifesto')">Manifesto</a>
+      <a onclick="showPage('journal')">Journal</a>
+    </div>
+    <div class="logo" onclick="showPage('home')" style="cursor:pointer;">POOF<span class="ast">*</span></div>
+    <div class="nav-right nav">
+      <a>ES / EN</a>
+      <a>Account</a>
+      <div class="cart">🛒<span class="cart-count">2</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- PAGE NAV -->
+<div class="pagenav">
+  <a id="nav-home" class="active" onclick="showPage('home')">Home</a>
+  <a id="nav-shop" onclick="showPage('shop')">Shop</a>
+  <a id="nav-product" onclick="showPage('product')">Product detail</a>
+  <a id="nav-discovery" onclick="showPage('discovery')">Discovery</a>
+  <a id="nav-manifesto" onclick="showPage('manifesto')">Manifesto</a>
+  <a id="nav-journal" onclick="showPage('journal')">Journal</a>
+</div>
+
+<!-- PAGE: HOME -->
+<div class="page active" id="page-home">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-grid">
+      <div>
+        <h1>Make it<br>vanish<span class="ast">*</span><span class="tail">— el olor que sobra,<br>no la marca que lo borra.</span></h1>
+        <div class="hero-cta">
+          <button class="btn" onclick="showPage('shop')">Comprar el Hero</button>
+          <button class="btn outline" onclick="showPage('discovery')">Discovery Pack →</button>
+        </div>
+      </div>
+      <div>
+        <div class="hero-meta">
+          <strong>Made in</strong>
+          España · formulación enzimática · botella PET reciclado
+        </div>
+        <div class="hero-meta" style="margin-top:18px;">
+          <strong>Funciona en</strong>
+          Hogar · ropa deportiva · tabaco · coche
+        </div>
+        <div class="hero-meta" style="margin-top:18px;">
+          <strong>Vendido en</strong>
+          poof.es · TikTok Shop · Amazon ES
+        </div>
+        <div class="hero-meta" style="margin-top:18px;">
+          <strong>Garantía</strong>
+          Si no funciona, te devolvemos 100%
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee">
+    <div class="marquee-inner">
+      <span>Make it vanish<span class="star">*</span></span>
+      <span>Make it vanish<span class="star">*</span></span>
+      <span>Make it vanish<span class="star">*</span></span>
+      <span>Make it vanish<span class="star">*</span></span>
+      <span>Make it vanish<span class="star">*</span></span>
+      <span>Make it vanish<span class="star">*</span></span>
+    </div>
+  </div>
+
+  <!-- PRODUCTOS -->
+  <section class="section">
+    <span class="eyebrow">Catálogo</span>
+    <h2>4 universos.<br>1 solución.<span class="ast">*</span></h2>
+    <p class="lead">Cuatro formatos. Cuatro fragancias. Una sola promesa: si lo huele alguien que no debe, no estamos haciendo el trabajo.</p>
+
+    <div class="product-grid">
+
+      <!-- HERO -->
+      <div class="product-card" onclick="showPage('product')">
+        <div class="pc-img hero-bg">
+          <div class="bottle">
+            <div class="bottle-label">
+              <div class="pname">POOF<span class="ast">*</span></div>
+              <div class="ptype">HERO · NEUTRA</div>
+              <div class="pvol">500 ML</div>
+            </div>
+          </div>
+        </div>
+        <div class="pc-info">
+          <div class="pc-tag">HOGAR · BEST SELLER</div>
+          <div class="pc-name">POOF<span class="ast">*</span> Hero</div>
+          <div class="pc-desc">El eliminador genérico para hogar. Cocina, sofá, baño, ropa. Fragancia neutra o fresh.</div>
+          <div class="pc-bottom">
+            <div class="pc-price"><span class="from">Desde</span>17,90€</div>
+            <button class="pc-add">Añadir</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SPORT -->
+      <div class="product-card">
+        <div class="pc-img sport-bg">
+          <div class="bottle">
+            <div class="bottle-label">
+              <div class="pname">POOF<span class="ast">*</span></div>
+              <div class="ptype">SPORT · FRESH</div>
+              <div class="pvol">250 ML</div>
+            </div>
+          </div>
+        </div>
+        <div class="pc-info">
+          <div class="pc-tag">GYM BAG</div>
+          <div class="pc-name">POOF<span class="ast">*</span> Sport</div>
+          <div class="pc-desc">Zapatillas, mochila, ropa deportiva. Enzimas potenciadas.</div>
+          <div class="pc-bottom">
+            <div class="pc-price">12,90€</div>
+            <button class="pc-add">Añadir</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SMOKE -->
+      <div class="product-card">
+        <div class="pc-img smoke-bg">
+          <div class="bottle">
+            <div class="bottle-label">
+              <div class="pname" style="color:var(--paper);">POOF<span class="ast">*</span></div>
+              <div class="ptype" style="color:var(--paper);opacity:.6;">SMOKE · ELEGANT</div>
+              <div class="pvol" style="color:var(--paper);opacity:.6;">250 ML</div>
+            </div>
+          </div>
+        </div>
+        <div class="pc-info">
+          <div class="pc-tag">SMOKESTOP</div>
+          <div class="pc-name">POOF<span class="ast">*</span> Smoke</div>
+          <div class="pc-desc">Tabaco, cigarro. Ciclodextrina + cuero/cedro.</div>
+          <div class="pc-bottom">
+            <div class="pc-price">14,90€</div>
+            <button class="pc-add">Añadir</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- DRIVE -->
+      <div class="product-card">
+        <div class="pc-img drive-bg">
+          <div class="bottle">
+            <div class="bottle-label">
+              <div class="pname" style="color:var(--paper);">POOF<span class="ast">*</span></div>
+              <div class="ptype" style="color:var(--paper);opacity:.6;">DRIVE · FLORAL</div>
+              <div class="pvol" style="color:var(--paper);opacity:.6;">250 ML</div>
+            </div>
+          </div>
+        </div>
+        <div class="pc-info">
+          <div class="pc-tag">COCHE</div>
+          <div class="pc-name">POOF<span class="ast">*</span> Drive</div>
+          <div class="pc-desc">Coche, taxi, VTC. Spray + colgante perfumable incluido.</div>
+          <div class="pc-bottom">
+            <div class="pc-price">13,90€</div>
+            <button class="pc-add">Añadir</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- DISCOVERY -->
+  <section class="discovery">
+    <div class="discovery-inner">
+      <div>
+        <span class="eyebrow" style="background:var(--ink);color:var(--yellow);">Pack 05 · El regalo perfecto</span>
+        <h2 style="margin:16px 0 18px;">Discovery Kit<span class="ast">*</span></h2>
+        <p style="font-size:18px;color:var(--ink);margin-bottom:24px;">
+          HERO 500ml + tres muestras de 30ml (SPORT + SMOKE + DRIVE) en caja con manifesto impreso.
+          La forma más elegante de descubrir los cuatro universos de POOF.
+        </p>
+        <p style="font-size:14px;color:var(--ink-2);margin-bottom:32px;">
+          <strong>29,90€</strong> · <span style="text-decoration:line-through;color:var(--muted);">44,60€ sueltos</span> · ahorra 14,70€
+        </p>
+        <button class="btn">Comprar Discovery →</button>
+      </div>
+      <div class="discovery-visual">
+        <div class="small-bottle"></div>
+        <div class="big-bottle">
+          <div class="name">POOF<span class="ast">*</span></div>
+        </div>
+        <div class="small-bottle"></div>
+        <div class="small-bottle"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MANIFESTO TEASER -->
+  <section class="manifesto">
+    <div class="manifesto-inner">
+      <span class="eyebrow" style="background:var(--yellow);color:var(--ink);">Manifesto</span>
+      <h2>El olor que sobra<br>no es tu identidad<span class="ast">*</span></h2>
+      <p>Diseñamos productos que <strong>eliminan lo que sobra</strong> y dejan lo que importa.</p>
+      <p>Una botella en la encimera vale más que diez en el armario. Si no se ve, no es marca.</p>
+      <p style="opacity:.6;font-size:16px;">— Manifesto POOF<span class="ast">*</span> · 2026</p>
+
+      <div class="manifesto-grid">
+        <div class="mg-item">
+          <div class="num">01</div>
+          <h4>Enzimas</h4>
+          <p>No tapamos. Dismantlamos la molécula del olor en su origen.</p>
+        </div>
+        <div class="mg-item">
+          <div class="num">02</div>
+          <h4>España</h4>
+          <p>Formulado y embotellado aquí. Sin viajes de container.</p>
+        </div>
+        <div class="mg-item">
+          <div class="num">03</div>
+          <h4>Reciclado</h4>
+          <p>Botella PET 100% reciclado. Refill llega en fase 2.</p>
+        </div>
+        <div class="mg-item">
+          <div class="num">04</div>
+          <h4>Garantía</h4>
+          <p>Si no funciona, te devolvemos hasta el último céntimo. Sin justificarte.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- JOURNAL TEASER -->
+  <section class="section">
+    <span class="eyebrow">Journal</span>
+    <h2>Cosas que nadie<br>te cuenta sobre el olor.<span class="ast">*</span></h2>
+    <p class="lead">Guías honestas, sin marketing, sobre cómo funciona realmente la eliminación de olores en casa.</p>
+
+    <div class="journal-grid">
+      <div class="journal-card">
+        <div class="jdate">04 Junio 2026 · 7 min lectura</div>
+        <h3>Por qué tu sofá huele a perro mojado tres días después</h3>
+        <p>La explicación técnica de las bacterias atrapadas en la fibra textil, y por qué los ambientadores genéricos no las eliminan.</p>
+        <div class="read">Leer →</div>
+      </div>
+      <div class="journal-card">
+        <div class="jdate">28 Mayo 2026 · 5 min lectura</div>
+        <h3>El día que el coche dejó de oler a taxi</h3>
+        <p>Una conversación con un conductor VTC madrileño sobre por qué cada cliente exige un olor diferente, y cómo lo resolvimos.</p>
+        <div class="read">Leer →</div>
+      </div>
+      <div class="journal-card">
+        <div class="jdate">15 Mayo 2026 · 4 min lectura</div>
+        <h3>Por qué las enzimas no matan el humo (y qué sí lo hace)</h3>
+        <p>Spoiler: ciclodextrina. La explicación química de por qué SMOKE es nuestra única fórmula con ingrediente diferente.</p>
+        <div class="read">Leer →</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REVIEWS -->
+  <section class="reviews-block">
+    <div class="reviews-inner">
+      <span class="eyebrow">Reviews verificados</span>
+      <h2 style="margin-bottom:32px;">4,8 estrellas · 247 reviews<span class="ast">*</span></h2>
+
+      <div class="reviews-grid">
+        <div class="review">
+          <div class="stars">★★★★★</div>
+          <h4>El primero que cumple</h4>
+          <p>"Llevo cinco años probando eliminadores de olor para el sofá donde duerme mi bulldog. Este es el único que ha funcionado a la primera. La botella es preciosa, la dejo en la encimera."</p>
+          <div class="author">— María L. · Madrid · Hero 500ml</div>
+        </div>
+        <div class="review">
+          <div class="stars">★★★★★</div>
+          <h4>SMOKE = magia para fumadores</h4>
+          <p>"Vivo con mi padre que fuma desde hace 40 años. La habitación olía a cigarro tras 3 minutos. Spray SMOKE en cortinas + sofá + alfombra, 5 minutos después, nada. Increíble."</p>
+          <div class="author">— Pedro R. · Sevilla · Smoke 250ml</div>
+        </div>
+        <div class="review">
+          <div class="stars">★★★★★</div>
+          <h4>Discovery = regalo perfecto</h4>
+          <p>"Compré el Discovery para mi madre. Quedó alucinada con la presentación, y al final usa el HERO todos los días. Volveré a por más."</p>
+          <div class="author">— Ana S. · Barcelona · Discovery Kit</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEWSLETTER -->
+  <section class="news">
+    <h3>Suscríbete<span class="ast">*</span></h3>
+    <p>Recibe el manifesto, descuento del 10% en tu primer pedido y entradas del Journal cada mes. Nada más.</p>
+    <form class="news-form" onsubmit="event.preventDefault();alert('¡Gracias! En 5 min recibes tu código.');">
+      <input type="email" placeholder="tu@email.com" required>
+      <button type="submit">Suscribirme</button>
+    </form>
+  </section>
+
+</div>
+
+<!-- PAGE: SHOP -->
+<div class="page" id="page-shop">
+  <section class="section">
+    <span class="eyebrow">Catálogo completo</span>
+    <h2>Shop POOF<span class="ast">*</span></h2>
+    <p class="lead">4 SKUs principales + el Discovery Pack. Filtra por uso o fragancia.</p>
+
+    <div style="display:flex;gap:12px;margin-bottom:32px;flex-wrap:wrap;">
+      <button class="btn outline" style="padding:8px 16px;font-size:11px;">Todos</button>
+      <button class="btn outline" style="padding:8px 16px;font-size:11px;">Hogar</button>
+      <button class="btn outline" style="padding:8px 16px;font-size:11px;">Sport</button>
+      <button class="btn outline" style="padding:8px 16px;font-size:11px;">Smoke</button>
+      <button class="btn outline" style="padding:8px 16px;font-size:11px;">Drive</button>
+      <button class="btn outline" style="padding:8px 16px;font-size:11px;">Packs</button>
+    </div>
+
+    <div class="product-grid">
+      <div class="product-card" onclick="showPage('product')">
+        <div class="pc-img hero-bg"><div class="bottle"><div class="bottle-label"><div class="pname">POOF<span class="ast">*</span></div><div class="ptype">HERO</div><div class="pvol">500 ML</div></div></div></div>
+        <div class="pc-info">
+          <div class="pc-tag">HOGAR</div>
+          <div class="pc-name">POOF<span class="ast">*</span> Hero 500ml</div>
+          <div class="pc-desc">Eliminador genérico para hogar.</div>
+          <div class="pc-bottom"><div class="pc-price">17,90€</div><button class="pc-add">Añadir</button></div>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="pc-img sport-bg"><div class="bottle"><div class="bottle-label"><div class="pname">POOF<span class="ast">*</span></div><div class="ptype">SPORT</div><div class="pvol">250 ML</div></div></div></div>
+        <div class="pc-info">
+          <div class="pc-tag">DEPORTE</div>
+          <div class="pc-name">POOF<span class="ast">*</span> Sport 250ml</div>
+          <div class="pc-desc">Para gimnasio, zapatillas, ropa.</div>
+          <div class="pc-bottom"><div class="pc-price">12,90€</div><button class="pc-add">Añadir</button></div>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="pc-img smoke-bg"><div class="bottle"><div class="bottle-label"><div class="pname" style="color:var(--paper);">POOF<span class="ast">*</span></div><div class="ptype" style="color:var(--paper);opacity:.6;">SMOKE</div><div class="pvol" style="color:var(--paper);opacity:.6;">250 ML</div></div></div></div>
+        <div class="pc-info">
+          <div class="pc-tag">TABACO</div>
+          <div class="pc-name">POOF<span class="ast">*</span> Smoke 250ml</div>
+          <div class="pc-desc">Con ciclodextrina anti-humo.</div>
+          <div class="pc-bottom"><div class="pc-price">14,90€</div><button class="pc-add">Añadir</button></div>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="pc-img drive-bg"><div class="bottle"><div class="bottle-label"><div class="pname" style="color:var(--paper);">POOF<span class="ast">*</span></div><div class="ptype" style="color:var(--paper);opacity:.6;">DRIVE</div><div class="pvol" style="color:var(--paper);opacity:.6;">250 ML</div></div></div></div>
+        <div class="pc-info">
+          <div class="pc-tag">COCHE</div>
+          <div class="pc-name">POOF<span class="ast">*</span> Drive 250ml</div>
+          <div class="pc-desc">Para coche, taxi, VTC.</div>
+          <div class="pc-bottom"><div class="pc-price">13,90€</div><button class="pc-add">Añadir</button></div>
+        </div>
+      </div>
+
+      <div class="product-card" onclick="showPage('discovery')" style="grid-column:span 2;">
+        <div class="pc-img" style="background:var(--yellow);aspect-ratio:2.2;flex-direction:column;">
+          <div style="font-size:48px;font-weight:900;letter-spacing:-0.02em;">DISCOVERY KIT</div>
+          <div style="font-size:14px;text-transform:uppercase;letter-spacing:.12em;margin-top:8px;">500ML + 3 × 30ML</div>
+        </div>
+        <div class="pc-info">
+          <div class="pc-tag">PACK · EL REGALO PERFECTO</div>
+          <div class="pc-name">POOF<span class="ast">*</span> Discovery Kit</div>
+          <div class="pc-desc">HERO 500ml + tres muestras 30ml (SPORT + SMOKE + DRIVE) en caja con manifesto impreso.</div>
+          <div class="pc-bottom"><div class="pc-price">29,90€ <span style="font-size:14px;font-weight:400;color:var(--muted);text-decoration:line-through;">44,60€</span></div><button class="pc-add">Añadir Pack</button></div>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="pc-img" style="background:linear-gradient(135deg,#3F9B5E,#2D7A48);"><div class="bottle"><div class="bottle-label"><div class="pname" style="color:var(--paper);">POOF<span class="ast">*</span></div><div class="ptype" style="color:var(--paper);opacity:.6;">REFILL · F2</div><div class="pvol" style="color:var(--paper);opacity:.6;">1 L</div></div></div></div>
+        <div class="pc-info">
+          <div class="pc-tag">FASE 2 · PRÓXIMAMENTE</div>
+          <div class="pc-name">POOF<span class="ast">*</span> Refill 1L</div>
+          <div class="pc-desc">Recarga para tu botella Hero. -40% precio, -80% plástico.</div>
+          <div class="pc-bottom"><div class="pc-price" style="color:var(--muted);">Lista de espera</div><button class="pc-add" style="background:var(--olive);">Avísame</button></div>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="pc-img" style="background:linear-gradient(135deg,#fff,#E8E1D2);"><div class="bottle"><div class="bottle-label"><div class="pname">POOF<span class="ast">*</span></div><div class="ptype">CANDLE · F3</div><div class="pvol">200 G</div></div></div></div>
+        <div class="pc-info">
+          <div class="pc-tag">FASE 3 · PRÓXIMAMENTE</div>
+          <div class="pc-name">POOF<span class="ast">*</span> Candle</div>
+          <div class="pc-desc">Vela de fragancia POOF en cera de soja. Ambientar mientras eliminamos.</div>
+          <div class="pc-bottom"><div class="pc-price" style="color:var(--muted);">Lista de espera</div><button class="pc-add" style="background:var(--olive);">Avísame</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- PAGE: PRODUCT DETAIL -->
+<div class="page" id="page-product">
+  <div class="pdp">
+    <div class="pdp-grid">
+      <div class="pdp-gallery">
+        <div class="pdp-main-img">
+          <div class="bottle" style="width:50%;height:90%;">
+            <div class="bottle-label">
+              <div class="pname" style="font-size:36px;">POOF<span class="ast">*</span></div>
+              <div class="ptype">HERO · FRESH</div>
+              <div class="pvol">500 ML</div>
+            </div>
+          </div>
+        </div>
+        <div class="pdp-thumbs">
+          <div class="pdp-thumb active">FRONT</div>
+          <div class="pdp-thumb">LIFESTYLE</div>
+          <div class="pdp-thumb">DETAIL</div>
+          <div class="pdp-thumb">IN USE</div>
+        </div>
+      </div>
+
+      <div class="pdp-info">
+        <div class="pdp-cat">El héroe · best seller</div>
+        <h1>POOF<span class="ast">*</span> Hero</h1>
+        <div class="pdp-stars"><span class="y">★★★★★</span> 4,8/5 · 247 reviews</div>
+        <div class="pdp-price">17,90€ <span class="sub">/ 500ml</span></div>
+
+        <p class="pdp-desc">El eliminador genérico para casa. Cocina, sofá, baño, ropa. Fórmula enzimática que rompe la molécula del olor en su origen — no la tapa. <strong>Made in Spain.</strong></p>
+
+        <div class="pdp-opt">
+          <div class="pdp-opt-label">Fragancia</div>
+          <div class="pdp-opt-choices">
+            <button class="pdp-opt-btn active">FRESH</button>
+            <button class="pdp-opt-btn">NEUTRA</button>
+            <button class="pdp-opt-btn">FLORAL</button>
+          </div>
+        </div>
+
+        <div class="pdp-opt">
+          <div class="pdp-opt-label">Formato</div>
+          <div class="pdp-opt-choices">
+            <button class="pdp-opt-btn active">500 ML</button>
+            <button class="pdp-opt-btn">250 ML</button>
+          </div>
+        </div>
+
+        <div class="pdp-sub-toggle">
+          <h4>🔄 Suscríbete y ahorra <span class="save">-15%</span></h4>
+          <p>Recibe POOF Hero cada mes. <strong>14,90€/mes</strong>. Cancela cuando quieras.</p>
+        </div>
+
+        <div class="pdp-add">
+          <button class="btn-main">Añadir al carrito · 17,90€</button>
+          <button class="btn-main" style="background:transparent;color:var(--ink);border:2px solid var(--ink);max-width:60px;">♡</button>
+        </div>
+
+        <div class="pdp-tabs">
+          <div class="pdp-tab open" onclick="this.classList.toggle('open')">
+            Cómo funciona
+            <span>+</span>
+          </div>
+          <div class="pdp-tab-content">
+            <p>Las enzimas son catalizadores biológicos que rompen las moléculas orgánicas del olor (proteínas, ácidos grasos, mercaptanos) en compuestos sin olor. No enmascaramos: descomponemos. Spray 3-4 veces a 20cm del tejido, espera 60 segundos, listo. Funciona en cocina, sofá, ropa, alfombras, cortinas, escondites de mascota.</p>
+          </div>
+          <div class="pdp-tab" onclick="this.classList.toggle('open')">Ingredientes<span>+</span></div>
+          <div class="pdp-tab-content"><p>Agua desionizada (94%), complejo enzimático multiacción, bicarbonato sódico, extracto cítrico orgánico, fragancia natural Fresh, conservante eco-cert. Sin parabenos, sin fosfatos, sin SLS. Vegan-friendly.</p></div>
+          <div class="pdp-tab" onclick="this.classList.toggle('open')">FAQ<span>+</span></div>
+          <div class="pdp-tab-content"><p><strong>¿Se puede usar en mi mascota?</strong> No directamente. Spray en superficies y deja secar antes de que vuelva tu mascota. <strong>¿Funciona en olor a tabaco?</strong> El Hero ayuda, pero para tabaco persistente usa POOF Smoke (lleva ciclodextrina). <strong>¿Es seguro para niños?</strong> Sí, una vez seco. No spray directamente sobre piel.</p></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE: DISCOVERY -->
+<div class="page" id="page-discovery">
+  <section class="discovery" style="padding:120px 32px;">
+    <div class="discovery-inner">
+      <div>
+        <span class="eyebrow" style="background:var(--ink);color:var(--yellow);">Pack 05 · El regalo perfecto</span>
+        <h2 style="font-size:84px;margin:16px 0 24px;">Discovery Kit<span class="ast">*</span></h2>
+        <p style="font-size:20px;color:var(--ink);margin-bottom:32px;">
+          La forma más elegante de descubrir los cuatro universos de POOF.
+          HERO 500ml + tres muestras de 30ml (SPORT + SMOKE + DRIVE) en caja con manifesto impreso.
+        </p>
+        <p style="font-size:48px;font-weight:900;color:var(--ink);margin-bottom:6px;">29,90€</p>
+        <p style="font-size:14px;color:var(--ink-2);margin-bottom:32px;">
+          <span style="text-decoration:line-through;color:var(--muted);">44,60€ sueltos</span> · ahorra 14,70€
+        </p>
+        <button class="btn">Añadir al carrito →</button>
+        <p style="font-size:12px;color:var(--ink-2);margin-top:14px;text-transform:uppercase;letter-spacing:.1em;">
+          ✓ Envío gratis · ✓ Mensaje regalo · ✓ Envuelto premium
+        </p>
+      </div>
+      <div class="discovery-visual" style="background:rgba(255,255,255,.4);padding:48px;">
+        <div class="small-bottle"></div>
+        <div class="big-bottle" style="height:240px;"><div class="name">POOF<span class="ast">*</span></div></div>
+        <div class="small-bottle"></div>
+        <div class="small-bottle"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Qué incluye<span class="ast">*</span></h2>
+    <div class="product-grid" style="margin-top:32px;">
+      <div class="product-card">
+        <div class="pc-img hero-bg"><div class="bottle"><div class="bottle-label"><div class="pname">POOF<span class="ast">*</span></div><div class="ptype">HERO</div><div class="pvol">500 ML</div></div></div></div>
+        <div class="pc-info"><div class="pc-name" style="font-size:18px;">1 × Hero 500ml</div><div class="pc-desc" style="margin:6px 0 0;">Tu eliminador genérico para casa.</div></div>
+      </div>
+      <div class="product-card">
+        <div class="pc-img sport-bg" style="aspect-ratio:1;"><div class="small-bottle" style="width:30px;height:80px;background:rgba(255,255,255,.95);"></div></div>
+        <div class="pc-info"><div class="pc-name" style="font-size:18px;">1 × Sport 30ml</div><div class="pc-desc" style="margin:6px 0 0;">Para tu mochila de gym.</div></div>
+      </div>
+      <div class="product-card">
+        <div class="pc-img smoke-bg"><div class="small-bottle" style="width:30px;height:80px;background:rgba(255,255,255,.95);"></div></div>
+        <div class="pc-info"><div class="pc-name" style="font-size:18px;">1 × Smoke 30ml</div><div class="pc-desc" style="margin:6px 0 0;">Para el bolsillo del fumador en casa.</div></div>
+      </div>
+      <div class="product-card">
+        <div class="pc-img drive-bg"><div class="small-bottle" style="width:30px;height:80px;background:rgba(255,255,255,.95);"></div></div>
+        <div class="pc-info"><div class="pc-name" style="font-size:18px;">1 × Drive 30ml</div><div class="pc-desc" style="margin:6px 0 0;">Para la guantera del coche.</div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- PAGE: MANIFESTO -->
+<div class="page" id="page-manifesto">
+  <section class="manifesto" style="padding:140px 32px;">
+    <div class="manifesto-inner">
+      <span class="eyebrow" style="background:var(--yellow);color:var(--ink);">Manifesto POOF*</span>
+      <h2 style="font-size:96px;line-height:.92;letter-spacing:-0.04em;margin:24px 0 64px;">El olor que sobra<br>no es tu identidad<span class="ast">*</span></h2>
+
+      <p style="font-size:22px;line-height:1.4;">
+        Vivimos en un siglo donde el hogar dejó de ser sólo un refugio: es escenario,
+        oficina, gimnasio, cocina abierta, lugar donde el perro duerme con nosotros
+        y el sofá guarda recuerdos que no pediste guardar.
+      </p>
+      <p style="font-size:22px;line-height:1.4;">
+        El producto que vivía escondido en el armario porque era demasiado feo para
+        estar a la vista ya no tiene sentido. <strong>Si lo usas todos los días,
+        merece ocupar un espacio visible.</strong>
+      </p>
+      <p style="font-size:22px;line-height:1.4;">
+        POOF<span class="ast">*</span> es eso: <strong>la herramienta funcional que cabe en la encimera
+        de mármol</strong>, junto al café, al libro de Vincent van Duysen y a la vela
+        de Aesop. Cuando la familia te visita, no la escondes.
+      </p>
+      <p style="font-size:22px;line-height:1.4;">
+        Pero la belleza sin función es perfume caro. <strong>POOF<span class="ast">*</span> funciona</strong>.
+        Enzimas reales descomponen moléculas reales. Si en 60 segundos el olor no
+        se va, te devolvemos el dinero — el último céntimo, sin justificarte.
+      </p>
+      <p style="font-size:22px;line-height:1.4;color:var(--yellow);font-style:italic;">
+        Porque el olor que sobra no es tu identidad.<br>
+        Es sólo algo que necesita desaparecer.
+      </p>
+
+      <p style="opacity:.5;font-size:14px;margin-top:48px;">— Manifesto POOF<span class="ast">*</span> · 2026 · Made in España con asterisco rojo</p>
+    </div>
+  </section>
+</div>
+
+<!-- PAGE: JOURNAL -->
+<div class="page" id="page-journal">
+  <section class="section">
+    <span class="eyebrow">Journal</span>
+    <h2>Cosas que nadie te cuenta<br>sobre el olor.<span class="ast">*</span></h2>
+    <p class="lead">Guías honestas, sin marketing, sobre cómo funciona realmente la eliminación de olores en casa.</p>
+
+    <div class="journal-grid">
+      <div class="journal-card">
+        <div class="jdate">04 Junio 2026 · 7 min lectura · Hogar</div>
+        <h3>Por qué tu sofá huele a perro mojado tres días después</h3>
+        <p>La explicación técnica de las bacterias atrapadas en la fibra textil, y por qué los ambientadores genéricos no las eliminan.</p>
+        <div class="read">Leer →</div>
+      </div>
+      <div class="journal-card">
+        <div class="jdate">28 Mayo 2026 · 5 min · Drive</div>
+        <h3>El día que el coche dejó de oler a taxi</h3>
+        <p>Una conversación con un conductor VTC madrileño sobre por qué cada cliente exige un olor diferente.</p>
+        <div class="read">Leer →</div>
+      </div>
+      <div class="journal-card">
+        <div class="jdate">15 Mayo 2026 · 4 min · Smoke</div>
+        <h3>Por qué las enzimas no matan el humo (y qué sí lo hace)</h3>
+        <p>Spoiler: ciclodextrina. La explicación química de por qué SMOKE es nuestra única fórmula con ingrediente diferente.</p>
+        <div class="read">Leer →</div>
+      </div>
+      <div class="journal-card">
+        <div class="jdate">2 Mayo 2026 · 6 min · Sport</div>
+        <h3>El olor del esfuerzo (y cómo apagarlo sin lavar)</h3>
+        <p>Por qué tus zapatillas siguen oliendo aunque las laves. La culpa la tienen las bacterias termófilas.</p>
+        <div class="read">Leer →</div>
+      </div>
+      <div class="journal-card">
+        <div class="jdate">22 Abril 2026 · 8 min · Marca</div>
+        <h3>Por qué decidimos no ser otra marca de Amazon</h3>
+        <p>Nuestra apuesta por Shopify y TikTok Shop por encima del marketplace. Pros, contras, y lo que aprendimos.</p>
+        <div class="read">Leer →</div>
+      </div>
+      <div class="journal-card">
+        <div class="jdate">10 Abril 2026 · 5 min · Sostenibilidad</div>
+        <h3>El día que el botellón se convirtió en nuestra botella</h3>
+        <p>Cómo encontramos un proveedor PET reciclado en Catalunya que reduce un 67% nuestra huella de carbono.</p>
+        <div class="read">Leer →</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- NEWSLETTER -->
+<section class="news" style="border-top:1px solid var(--line);">
+  <h3>POOF<span class="ast">*</span> · The Drop</h3>
+  <p>Newsletter mensual. Lo que aprendemos vendiendo, lo que cambiamos en el producto, descuentos. Sin spam.</p>
+  <form class="news-form" onsubmit="event.preventDefault();alert('¡Gracias! Bienvenida a The Drop.');">
+    <input type="email" placeholder="tu@email.com" required>
+    <button type="submit">Suscribirme</button>
+  </form>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <h2>POOF<span class="ast">*</span></h2>
+        <p>Make it vanish. La marca española de eliminadores de olor enzimáticos diseñada para vivir en la encimera, no escondida en el armario.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Shop</h5>
+        <a>Hero 500ml</a>
+        <a>Sport 250ml</a>
+        <a>Smoke 250ml</a>
+        <a>Drive 250ml</a>
+        <a>Discovery Kit</a>
+        <a>Suscripción</a>
+      </div>
+      <div class="footer-col">
+        <h5>Marca</h5>
+        <a>Manifesto</a>
+        <a>Journal</a>
+        <a>Sostenibilidad</a>
+        <a>Press</a>
+        <a>Trabajamos con</a>
+      </div>
+      <div class="footer-col">
+        <h5>Ayuda</h5>
+        <a>Envíos</a>
+        <a>Devoluciones</a>
+        <a>FAQ</a>
+        <a>Contacto</a>
+        <a>WhatsApp</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2026 POOF* — Incubalia × Brandy & Co.</div>
+      <div>Términos · Privacidad · Cookies</div>
+    </div>
+  </div>
+</footer>
+
+<div class="preview-banner">Mockup interactivo · enseñar al inversor</div>
+
+<script>
+  function showPage(name){
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page-'+name).classList.add('active');
+    document.querySelectorAll('.pagenav a').forEach(a=>a.classList.remove('active'));
+    const nav = document.getElementById('nav-'+name);
+    if(nav) nav.classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+</script>
+
+</body>
+</html>

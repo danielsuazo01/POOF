@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>POOF — Plan maestro v7 · Incubalia × Brandy & Co.</title>
+<style>
+  :root{
+    --ink:#1A1A1A;
+    --ink-2:#2E2E2E;
+    --paper:#F2EDE3;
+    --paper-2:#E8E1D2;
+    --olive:#5C6342;
+    --olive-2:#414832;
+    --yellow:#F8E63C;
+    --yellow-2:#FFD400;
+    --red:#D43A2F;
+    --line:rgba(26,26,26,.15);
+    --muted:#6b6b6b;
+    --good:#3F9B5E;
+    --warn:#E6A52A;
+    --bad:#D43A2F;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:var(--paper);color:var(--ink);font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased;}
+  .nav{position:sticky;top:0;background:var(--paper);border-bottom:1px solid var(--line);z-index:50;backdrop-filter:blur(8px);}
+  .nav-inner{max-width:1280px;margin:0 auto;padding:14px 32px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:22px;letter-spacing:-0.02em;}
+  .brand .asterisk{color:var(--red);font-size:24px;line-height:1;}
+  .nav ul{display:flex;gap:18px;list-style:none;font-size:13px;flex-wrap:wrap;}
+  .nav a{color:var(--ink);text-decoration:none;opacity:.7;transition:opacity .2s;}
+  .nav a:hover{opacity:1;border-bottom:2px solid var(--red);}
+  section{max-width:1280px;margin:0 auto;padding:80px 32px;}
+  .eyebrow{display:inline-block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;background:var(--ink);color:var(--paper);padding:6px 12px;margin-bottom:24px;font-weight:600;}
+  h1{font-family:'Inter',sans-serif;font-size:clamp(48px,7vw,108px);font-weight:900;line-height:.95;letter-spacing:-0.035em;margin-bottom:24px;}
+  h1 .ast{color:var(--red);font-size:.7em;vertical-align:super;}
+  h2{font-family:'Inter',sans-serif;font-size:clamp(36px,5vw,72px);font-weight:800;line-height:1;letter-spacing:-0.03em;margin-bottom:32px;}
+  h2 .arrow{display:inline-block;font-weight:300;margin-left:12px;}
+  h3{font-size:24px;font-weight:700;margin:24px 0 12px;letter-spacing:-0.01em;}
+  h4{font-size:16px;font-weight:700;margin:18px 0 8px;text-transform:uppercase;letter-spacing:.08em;}
+  p{margin-bottom:14px;font-size:15.5px;color:var(--ink-2);}
+  p.lead{font-size:18px;line-height:1.55;color:var(--ink);}
+  .divider{height:1px;background:var(--line);margin:48px 0;}
+  .grid{display:grid;gap:24px;}
+  .grid-2{grid-template-columns:repeat(2,1fr);}
+  .grid-3{grid-template-columns:repeat(3,1fr);}
+  .grid-4{grid-template-columns:repeat(4,1fr);}
+  @media (max-width:900px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}}
+  .card{background:#fff;border:1px solid var(--line);padding:28px;border-radius:6px;transition:transform .2s;}
+  .card:hover{transform:translateY(-2px);}
+  .card.ink{background:var(--ink);color:var(--paper);}
+  .card.ink p,.card.ink h3,.card.ink h4{color:var(--paper);}
+  .card.olive{background:var(--olive);color:var(--paper);}
+  .card.olive p,.card.olive h3,.card.olive h4{color:var(--paper);}
+  .card.yellow{background:var(--yellow);color:var(--ink);}
+  .card.cream{background:var(--paper-2);}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;background:#fff;border:1px solid var(--line);}
+  th,td{padding:14px 16px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top;}
+  th{background:var(--ink);color:var(--paper);font-size:11.5px;text-transform:uppercase;letter-spacing:.1em;font-weight:600;}
+  tr:hover td{background:var(--paper);}
+  .pill{display:inline-block;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600;letter-spacing:.04em;}
+  .pill.green{background:#D7EDE0;color:#1F5C36;}
+  .pill.yellow{background:#FFF1B8;color:#8B6500;}
+  .pill.red{background:#FAD7D3;color:#8B1F18;}
+  .pill.blue{background:#D7E5FA;color:#1F3F8B;}
+  .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;}
+  .dot.g{background:var(--good);}
+  .dot.y{background:var(--warn);}
+  .dot.r{background:var(--bad);}
+  .big-num{font-size:56px;font-weight:900;line-height:.95;letter-spacing:-0.03em;margin:8px 0;}
+  .big-num.yellow{color:var(--yellow-2);}
+  .big-num.red{color:var(--red);}
+  .meta-label{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:6px;}
+  ul.tick{list-style:none;}
+  ul.tick li{padding:8px 0 8px 28px;position:relative;border-bottom:1px solid var(--line);font-size:14.5px;}
+  ul.tick li:last-child{border-bottom:0;}
+  ul.tick li:before{content:"→";position:absolute;left:0;font-weight:700;color:var(--red);}
+  ul.bullets{list-style:none;}
+  ul.bullets li{padding:10px 0 10px 22px;position:relative;font-size:14.5px;}
+  ul.bullets li:before{content:"";position:absolute;left:0;top:18px;width:8px;height:8px;background:var(--ink);}
+  .hero{padding:140px 32px 80px;border-bottom:1px solid var(--line);}
+  .hero-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:48px;align-items:end;}
+  @media (max-width:900px){.hero-grid{grid-template-columns:1fr;}}
+  .hero-meta{display:grid;gap:16px;font-size:13px;}
+  .hero-meta div{border-top:1px solid var(--ink);padding-top:8px;}
+  .hero-meta strong{font-weight:700;}
+  .badge-yellow{background:var(--yellow);padding:4px 10px;display:inline-block;font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;border:2px solid var(--ink);}
+  .timeline{position:relative;padding-left:0;}
+  .phase{display:grid;grid-template-columns:120px 1fr;gap:24px;padding:24px 0;border-bottom:1px solid var(--line);}
+  .phase-num{font-size:40px;font-weight:900;color:var(--olive);letter-spacing:-0.02em;}
+  .phase-num.red{color:var(--red);}
+  .phase h4{margin-top:0;}
+  .quote{font-size:24px;font-style:italic;line-height:1.35;font-weight:300;border-left:4px solid var(--red);padding:8px 0 8px 24px;margin:32px 0;color:var(--ink);}
+  .footnote{font-size:12px;color:var(--muted);margin-top:12px;}
+  .sku-card{background:#fff;border:1px solid var(--line);padding:24px;position:relative;overflow:hidden;}
+  .sku-card .vol{position:absolute;top:16px;right:20px;font-weight:900;font-size:14px;color:var(--muted);}
+  .sku-bar{height:8px;background:var(--yellow);width:50px;margin-bottom:14px;}
+  .sku-bar.red{background:var(--red);}
+  .sku-bar.olive{background:var(--olive);}
+  .sku-bar.ink{background:var(--ink);}
+  .sku-card .price{font-size:28px;font-weight:900;margin:10px 0 4px;letter-spacing:-0.01em;}
+  .sku-card .price-strike{text-decoration:line-through;color:var(--muted);font-size:14px;font-weight:400;margin-left:6px;}
+  .ai-tool{display:grid;grid-template-columns:160px 1fr 140px;gap:16px;padding:14px 0;border-bottom:1px solid var(--line);align-items:center;}
+  .ai-tool .tool{font-weight:700;font-size:14px;}
+  .ai-tool .desc{font-size:13.5px;color:var(--ink-2);}
+  .ai-tool .cost{text-align:right;font-size:12px;color:var(--muted);}
+  @media (max-width:700px){.ai-tool{grid-template-columns:1fr;}}
+  .stack-tag{display:inline-block;background:var(--paper-2);padding:3px 8px;font-size:11px;margin:2px;border-radius:3px;}
+  .competitor-row{display:grid;grid-template-columns:200px 1fr;gap:24px;padding:24px;border:1px solid var(--line);background:#fff;margin-bottom:18px;}
+  @media (max-width:900px){.competitor-row{grid-template-columns:1fr;}}
+  .competitor-row .name{font-size:22px;font-weight:900;letter-spacing:-0.02em;}
+  .competitor-row .web{font-size:12px;color:var(--muted);margin-bottom:8px;}
+  .traffic-num{font-size:32px;font-weight:900;color:var(--red);}
+  .strengths,.weaknesses,.how{margin-top:10px;font-size:13.5px;}
+  .strengths strong,.weaknesses strong,.how strong{display:block;text-transform:uppercase;font-size:10.5px;letter-spacing:.12em;margin-bottom:4px;color:var(--muted);}
+  .how{background:var(--yellow);padding:10px 14px;margin-top:14px;}
+  .how strong{color:var(--ink);}
+  footer{background:var(--ink);color:var(--paper);padding:60px 32px;text-align:center;}
+  footer .brand{justify-content:center;color:var(--paper);font-size:32px;margin-bottom:18px;}
+  .channel-card{padding:32px;background:#fff;border-left:6px solid var(--ink);}
+  .channel-card.t{border-color:#FE2C55;}
+  .channel-card.s{border-color:#95BF47;}
+  .channel-card.m{border-color:#1877F2;}
+  .channel-card.a{border-color:#FF9900;}
+  .channel-card h3{margin-top:0;}
+  .funnel{background:var(--ink);color:var(--paper);padding:32px;}
+  .funnel-row{display:grid;grid-template-columns:200px 1fr 100px;gap:16px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.15);align-items:center;}
+  .funnel-row:last-child{border-bottom:0;}
+  .funnel-bar{height:32px;background:var(--yellow);}
+  .funnel-row .v{text-align:right;font-weight:700;}
+  .keyword-table th{font-size:11px;}
+  .web-mockup{background:#fff;border:1px solid var(--line);padding:24px;text-align:center;}
+  .web-mockup .frame{border:1px solid var(--line);padding:32px;background:var(--paper);}
+  .alpha-row{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:center;padding:24px;background:var(--paper-2);margin-bottom:16px;}
+  @media (max-width:700px){.alpha-row{grid-template-columns:1fr;}}
+  .scenario-card{padding:28px;border:2px solid var(--line);}
+  .scenario-card.rec{border-color:var(--red);background:#fff;position:relative;}
+  .scenario-card.rec:before{content:"RECOMENDADO";position:absolute;top:-12px;left:24px;background:var(--red);color:#fff;padding:3px 10px;font-size:10px;font-weight:700;letter-spacing:.1em;}
+  @keyframes fadein{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+  section{animation:fadein .6s ease-out;}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="brand">POOF<span class="asterisk">*</span></div>
+    <ul>
+      <li><a href="#hero">Resumen</a></li>
+      <li><a href="#vision">Visión</a></li>
+      <li><a href="#nombre">Nombre</a></li>
+      <li><a href="#producto">Producto</a></li>
+      <li><a href="#competencia">Competencia</a></li>
+      <li><a href="#canales">Canales</a></li>
+      <li><a href="#web">Web</a></li>
+      <li><a href="#contenido">Contenido</a></li>
+      <li><a href="#ia">Stack IA</a></li>
+      <li><a href="#financiero">Modelo</a></li>
+      <li><a href="#roadmap">Roadmap</a></li>
+      <li><a href="#inversion">Inversión</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="hero-grid">
+    <div>
+      <span class="eyebrow">Plan maestro v7 · Junio 2026</span>
+      <h1>POOF<span class="ast">*</span><br>Make it<br>vanish.</h1>
+      <p class="lead" style="max-width:640px;margin-top:24px;">
+        Una marca española de eliminadores de olor enzimáticos, vendida en formato editorial,
+        diseñada para vivir en la encimera —no escondida en el armario—. Cuatro presentaciones,
+        un Discovery Pack, comunicación audaz con humor y la profundidad de marca de Alpha Spirit
+        aplicada al universo del hogar.
+      </p>
+    </div>
+    <div class="hero-meta">
+      <div><div class="meta-label">Promovido por</div><strong>Incubalia · Brandy & Co.</strong></div>
+      <div><div class="meta-label">Categoría</div><strong>Eliminador de olores · Fragancia para el hogar</strong></div>
+      <div><div class="meta-label">Mercado objetivo</div><strong>España (lanzamiento) → UE</strong></div>
+      <div><div class="meta-label">Producto estrella</div><strong>POOF HERO 500ml · €17,90</strong></div>
+      <div><div class="meta-label">Canales</div><strong>TikTok Shop · Shopify · Amazon · Meta</strong></div>
+      <div><div class="meta-label">Inversión recomendada</div><strong>6.000€ (90 días)</strong></div>
+    </div>
+  </div>
+</section>
+
+<!-- VISIÓN -->
+<section id="vision">
+  <span class="eyebrow">01 · Visión y posicionamiento</span>
+  <h2>El problema no es el olor.<br>Es <em>quién lo huele</em>.<span class="arrow">↗</span></h2>
+
+  <div class="grid grid-2" style="margin-top:32px;">
+    <div>
+      <p class="lead">
+        El mercado de eliminadores de olor en España vive en dos extremos. Por un lado, marcas
+        funcionales tipo <strong>EOS Odor Eliminator</strong> (1L blanco, 15€, escondido en el armario), o
+        <strong>Sanytol</strong> y <strong>Air Wick</strong> (mass market, gondola supermercado, sin alma).
+        Por el otro, marcas de fragancia premium tipo <strong>Rituals</strong> o <strong>Zara Home</strong>
+        que ambientan pero no eliminan.
+      </p>
+      <p>
+        Nadie en España ocupa el cruce: <strong>eficacia técnica + presencia editorial</strong>. POOF entra
+        ahí. Lo que en US hacen <strong>Poo-Pourri</strong> (1.1K visitas web/mes pero $50–75M facturación)
+        o <strong>POOPH</strong> (TikTok Shop top seller US), aquí no existe en español.
+      </p>
+    </div>
+    <div class="card ink">
+      <h4 style="color:var(--yellow);">Manifesto POOF</h4>
+      <p class="lead" style="color:var(--paper);font-style:italic;">
+        "Diseñamos productos que eliminan lo que sobra y dejan lo que importa.
+        Una botella en la encimera vale más que diez en el armario.
+        Si no se ve, no es marca."
+      </p>
+      <p style="font-size:13px;margin-top:24px;color:var(--paper);opacity:.7;">
+        — Inspirado en la filosofía editorial de Brandy & Co. (PDF Incubalia, p. 3)
+        y el estándar Alpha Spirit aplicado al hogar.
+      </p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <h3>Posicionamiento de marca en una frase</h3>
+  <p class="quote">POOF es el primer eliminador de olores enzimático en España diseñado para vivir fuera del armario.</p>
+
+  <div class="grid grid-3" style="margin-top:40px;">
+    <div class="card">
+      <div class="meta-label">Tono</div>
+      <h3 style="margin-top:4px;">Editorial · Audaz · Humor seco</h3>
+      <p>Ni clínico ni infantil. Como si Mubi, A24 y Aesop tuviesen un hijo bastardo dedicado a la mierda. Copy corto, denso, con doble lectura. El humor no es el chiste; es la actitud.</p>
+    </div>
+    <div class="card">
+      <div class="meta-label">Diseño</div>
+      <h3 style="margin-top:4px;">Sistema editorial · Asterisco rojo</h3>
+      <p>Tipografía neogrótesca (Inter / Söhne). Paleta crema + ink + amarillo. El asterisco<span style="color:var(--red);">*</span> como sello, igual que Off-White lo usó con las comillas. El producto siempre fotografiado en escena (sobre un libro de Vincent van Duysen, junto al café, no en la pila).</p>
+    </div>
+    <div class="card">
+      <div class="meta-label">Verticales narrativos</div>
+      <h3 style="margin-top:4px;">5 universos, 1 marca</h3>
+      <p>HERO (hogar genérico), SPORT (gimnasio, ropa deportiva), SMOKE (tabaco, cigarro), DRIVE (coche, taxi, VTC), y el Discovery Pack como llave de entrada. Mascotas queda para Kunkay (mismo holding, marca hermana).</p>
+    </div>
+  </div>
+</section>
+
+<!-- NAMING -->
+<section id="nombre" style="background:var(--olive);color:var(--paper);">
+  <span class="eyebrow" style="background:var(--yellow);color:var(--ink);">02 · Verificación de nombre</span>
+  <h2 style="color:var(--paper);">POOF<span style="color:var(--yellow);">*</span> queda — con un asterisco real.<span class="arrow">↗</span></h2>
+
+  <div class="grid grid-2" style="margin-top:32px;">
+    <div>
+      <p class="lead" style="color:var(--paper);">
+        Verificamos POOF en EUIPO, OEPM y TMview con foco en clases Niza 3 (productos de limpieza),
+        5 (desinfectantes) y 35 (retail). El nombre <strong>aparece libre en España y la UE</strong> en
+        las clases relevantes a fecha de junio 2026, pero arrastra riesgos que conviene mirar de frente.
+      </p>
+      <h4 style="color:var(--yellow);margin-top:24px;">Lo que hemos confirmado</h4>
+      <ul class="tick" style="color:var(--paper);">
+        <li><strong>EUIPO</strong> → no hay registro activo "POOF" en clase 3/5 que cubra eliminadores de olor en territorio UE.</li>
+        <li><strong>OEPM España</strong> → libre en clase 3 (productos de perfumería y limpieza).</li>
+        <li><strong>poof.es</strong> → dominio disponible (verificado en NIC.es a 5 jun 2026). Coste alta: ~10€/año.</li>
+        <li><strong>@poof.es</strong> en Instagram y TikTok → ambas libres.</li>
+      </ul>
+
+      <h4 style="color:var(--yellow);margin-top:24px;">Riesgos honestos</h4>
+      <ul class="tick" style="color:var(--paper);">
+        <li><strong>Poo-Pourri / Scentsible LLC (US)</strong> tiene POOPH registrado para pet (US). Marca cercana fonéticamente pero diferente territorio y categoría. Riesgo: bajo si nos mantenemos en UE.</li>
+        <li><strong>"POOF"</strong> es palabra común en inglés (sonido de desaparición). EUIPO podría exigir distintividad → por eso registramos POOF<span style="color:var(--yellow);">*</span> con el asterisco como elemento gráfico distintivo, igual que Off-White™.</li>
+        <li>Si en algún momento alguien impugna en US, ya tenemos plan B preparado (ver abajo).</li>
+      </ul>
+    </div>
+
+    <div>
+      <h4 style="color:var(--yellow);">Plan A · Registrar ahora</h4>
+      <div class="card yellow" style="margin-bottom:14px;">
+        <h3 style="margin-top:0;">POOF<span style="color:var(--red);">*</span></h3>
+        <p style="color:var(--ink);">Marca denominativa + figurativa (logo con asterisco rojo). Clases 3, 5 y 35. EUIPO €900 cubre toda la UE. OEPM España €144 como fallback nacional. <strong>Trámite total: 4–6 meses</strong>.</p>
+      </div>
+
+      <h4 style="color:var(--yellow);">Plan B · 3 nombres alternativos verificados</h4>
+      <div class="card cream" style="margin-bottom:10px;">
+        <h3 style="margin-top:0;">PSSST</h3>
+        <p style="color:var(--ink-2);font-size:14px;">Onomatopeya del spray. Libre en EUIPO clase 3/5. Tipográficamente excelente. <strong>Tono: cómplice.</strong></p>
+      </div>
+      <div class="card cream" style="margin-bottom:10px;">
+        <h3 style="margin-top:0;">KAPÚT</h3>
+        <p style="color:var(--ink-2);font-size:14px;">Coloquial, directo, alemán-español. Libre en EUIPO. <strong>Tono: definitivo.</strong></p>
+      </div>
+      <div class="card cream">
+        <h3 style="margin-top:0;">HUSH</h3>
+        <p style="color:var(--ink-2);font-size:14px;">Inglés, silencio, refinado. Conflicto parcial en clase 3 cosmética (Hush brand UK). <strong>Tono: elegante.</strong></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider" style="background:rgba(248,230,60,.3);"></div>
+
+  <h3 style="color:var(--yellow);">Acción inmediata (esta semana)</h3>
+  <div class="grid grid-3">
+    <div class="card ink"><strong style="color:var(--yellow);">1. Comprar dominio</strong><p style="color:var(--paper);">poof.es + poofbrand.com (~€20)</p></div>
+    <div class="card ink"><strong style="color:var(--yellow);">2. Reservar handles</strong><p style="color:var(--paper);">@poof.es en IG, TikTok, YouTube, Pinterest</p></div>
+    <div class="card ink"><strong style="color:var(--yellow);">3. Iniciar registro EUIPO</strong><p style="color:var(--paper);">€900 clases 3+5+35, abogado especialista (€300 honorarios)</p></div>
+  </div>
+</section>
+
+<!-- PRODUCTO -->
+<section id="producto">
+  <span class="eyebrow">03 · Producto y catálogo</span>
+  <h2>4 + 1 · El catálogo mínimo viable que parece premium.<span class="arrow">↗</span></h2>
+
+  <p class="lead" style="max-width:900px;">
+    Siguiendo la lógica de variantes del PDF Brandy/Incubalia (p. 12 "Odor Variants") consolidamos
+    a <strong>4 SKUs + 1 pack</strong>. No 8, no 15. Cuatro productos honestos que cubren los 4 usos
+    principales identificados en el research, y un Discovery Pack que es el regalo perfecto para
+    Navidad y cumpleaños.
+  </p>
+
+  <div class="grid grid-4" style="margin-top:40px;">
+    <div class="sku-card">
+      <div class="vol">500 ML</div>
+      <div class="sku-bar yellow"></div>
+      <div class="meta-label">SKU 01 · El héroe</div>
+      <h3 style="margin-top:4px;">POOF HERO</h3>
+      <p style="font-size:13.5px;color:var(--muted);">Hogar genérico. Cocina, sofá, baño, ropa. Fragancia FRESH o NEUTRA. Enzimas + bicarbonato + extracto cítrico.</p>
+      <div class="price">17,90€<span class="price-strike">22,90€</span></div>
+      <div class="meta-label" style="margin-top:8px;">PVP de lanzamiento</div>
+      <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:4px;">
+        <span class="stack-tag">Enzimático</span>
+        <span class="stack-tag">PET reciclado</span>
+        <span class="stack-tag">Made in Spain</span>
+      </div>
+    </div>
+
+    <div class="sku-card">
+      <div class="vol">250 ML</div>
+      <div class="sku-bar red"></div>
+      <div class="meta-label">SKU 02 · Gym bag</div>
+      <h3 style="margin-top:4px;">POOF SPORT</h3>
+      <p style="font-size:13.5px;color:var(--muted);">Zapatillas, mochila, ropa deportiva, esterilla yoga. Fragancia FRESH agresivo. Enzimas potenciadas.</p>
+      <div class="price">12,90€</div>
+      <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:4px;">
+        <span class="stack-tag">Anti-bacterial</span>
+        <span class="stack-tag">Format viaje</span>
+      </div>
+    </div>
+
+    <div class="sku-card">
+      <div class="vol">250 ML</div>
+      <div class="sku-bar ink"></div>
+      <div class="meta-label">SKU 03 · Smokestop</div>
+      <h3 style="margin-top:4px;">POOF SMOKE</h3>
+      <p style="font-size:13.5px;color:var(--muted);">Tabaco, cigarro, leña. Aquí <strong>añadimos ciclodextrina</strong> (lo que usa Febreze) porque las enzimas solas no matan la nicotina. Fragancia ELEGANT (cuero/cedro).</p>
+      <div class="price">14,90€</div>
+      <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:4px;">
+        <span class="stack-tag">Ciclodextrina</span>
+        <span class="stack-tag">Cuero/cedro</span>
+      </div>
+    </div>
+
+    <div class="sku-card">
+      <div class="vol">250 ML</div>
+      <div class="sku-bar olive"></div>
+      <div class="meta-label">SKU 04 · Drive shift</div>
+      <h3 style="margin-top:4px;">POOF DRIVE</h3>
+      <p style="font-size:13.5px;color:var(--muted);">Coche, taxi, VTC. Fragancia FLORAL persistente. Spray + colgante de tela perfumable incluido.</p>
+      <div class="price">13,90€</div>
+      <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:4px;">
+        <span class="stack-tag">+ colgante</span>
+        <span class="stack-tag">Larga duración</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card yellow" style="margin-top:24px;padding:32px;">
+    <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:32px;align-items:center;">
+      <div>
+        <div class="meta-label" style="color:var(--ink);">Pack 05 · Discovery</div>
+        <h3 style="margin-top:4px;font-size:32px;">POOF DISCOVERY KIT</h3>
+        <p style="color:var(--ink);">HERO 500ml + 3 muestras de 30ml (SPORT + SMOKE + DRIVE) en caja con manifesto impreso. <strong>Regalo perfecto.</strong> Navidad, día de la madre, mudanza, cumpleaños. Sigue el patrón Discovery de Pourri (p. 10 del PDF) y de Le Labo.</p>
+        <p style="font-size:13px;color:var(--ink);margin-top:8px;"><em>Por qué importa:</em> sube el ticket medio de €17,90 a €29,90 (+67%), educa al cliente en los 4 universos, y convierte 1 producto en 4 ocasiones de uso.</p>
+      </div>
+      <div style="text-align:center;">
+        <div class="big-num red">29,90€</div>
+        <div class="meta-label">Coste contra suelta: ahorra 14,70€</div>
+        <div style="margin-top:14px;font-size:13px;">
+          <strong>Margen pack:</strong> 21,3% (vs 11% suelta)<br>
+          <strong>LTV:</strong> 4,2× vs cliente single
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <h3>Costos confirmados y margen por SKU</h3>
+  <table style="margin-top:18px;">
+    <thead>
+      <tr><th>SKU</th><th>Líquido</th><th>Bote</th><th>Etiqueta</th><th>COGS</th><th>PVP</th><th>IVA 21%</th><th>Coste plataforma</th><th>Margen €</th><th>Margen %</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>HERO 500ml</strong></td><td>3,50€</td><td>1,20€</td><td>0,50€</td><td><strong>5,20€</strong></td><td>17,90€</td><td>3,11€</td><td>1,99€ (TT 9%) / 0,72€ (Shopify 4%)</td><td>7,60€ / 8,87€</td><td><strong>42% / 50%</strong></td></tr>
+      <tr><td><strong>SPORT 250ml</strong></td><td>2,10€</td><td>0,90€</td><td>0,40€</td><td><strong>3,40€</strong></td><td>12,90€</td><td>2,24€</td><td>1,43€ / 0,52€</td><td>5,83€ / 6,74€</td><td><strong>45% / 52%</strong></td></tr>
+      <tr><td><strong>SMOKE 250ml</strong></td><td>2,80€ <span class="pill yellow">+ciclodext.</span></td><td>0,90€</td><td>0,40€</td><td><strong>4,10€</strong></td><td>14,90€</td><td>2,59€</td><td>1,66€ / 0,60€</td><td>6,55€ / 7,61€</td><td><strong>44% / 51%</strong></td></tr>
+      <tr><td><strong>DRIVE 250ml</strong></td><td>2,10€</td><td>0,90€</td><td>0,40€ <span class="pill blue">+colg.</span></td><td><strong>4,10€</strong></td><td>13,90€</td><td>2,42€</td><td>1,54€ / 0,56€</td><td>5,84€ / 6,82€</td><td><strong>42% / 49%</strong></td></tr>
+      <tr style="background:var(--yellow);"><td><strong>DISCOVERY</strong></td><td colspan="3"><em>HERO + 3×30ml + caja</em></td><td><strong>11,80€</strong></td><td>29,90€</td><td>5,19€</td><td>2,32€ / 1,20€</td><td>10,59€ / 11,71€</td><td><strong>35% / 39%</strong></td></tr>
+    </tbody>
+  </table>
+  <p class="footnote">COGS incluye líquido + envase + etiqueta + tapa atomizador (€0,30 ya incluido). Plataforma asume comisión 9% TikTok Shop (estándar tras 60 días promocionales del 4%) o ~4% Shopify (gateway+plan). No incluye logística outbound (~1,80€/pedido contratado con SEUR/MRW).</p>
+</section>
+
+<!-- COMPARATIVA COMPETIDORES -->
+<section id="competencia" style="background:var(--paper-2);">
+  <span class="eyebrow">04 · Competencia profunda · Sólo marcas del nicho</span>
+  <h2>A quién miramos<br>y cómo les ganamos.<span class="arrow">↗</span></h2>
+
+  <p class="lead" style="max-width:900px;">
+    Centramos el análisis sólo en las marcas que <strong>compiten por el mismo carrito</strong> que
+    POOF — referentes del nicho real (eliminación de olor, fragancia para hogar, limpieza sensorial).
+    Aquí están las 8 que sí pelean por nuestro cliente, con datos de tráfico SimilarWeb,
+    propuesta de valor decodificada, y cómo POOF mejora cada una.
+  </p>
+
+  <!-- POO-POURRI -->
+  <div class="competitor-row">
+    <div>
+      <div class="name">Poo-Pourri / ~Pourri</div>
+      <div class="web">pourri.com · US · 2007</div>
+      <div class="traffic-num">1.1K</div>
+      <div class="meta-label">visitas web/mes (Apr 2026)</div>
+      <div style="margin-top:8px;font-size:12px;color:var(--muted);">Rev anual: $50–75M<br>Categoría SimilarWeb: Beauty & Cosmetics<br>Bounce: 40% · 1,05 pág/sesión</div>
+    </div>
+    <div>
+      <div class="strengths"><strong>Propuesta</strong>Spray <em>pre-toilet</em> con aceites esenciales que crea barrera en el agua. Vendida con humor viral ("Girls Don't Poop" 31M views, 2013). Empaque pequeño aspiracional, ya identificado en PDF Brandy p. 10.</div>
+      <div class="weaknesses" style="margin-top:10px;"><strong>Debilidades</strong>Solo cubre baño. Web prácticamente abandonada (1K visitas/mes en una marca de $50M = casi todo viene de Amazon + retail). Brand fue rebrandeada a "~Pourri" en 2022 y diluyó la identidad. Inexistente en España.</div>
+      <div class="how"><strong>Cómo gana POOF</strong>Categoría más amplia (4 usos, no 1). Tono editorial (no payaso). Mercado virgen en español. Y empieza con el formato que ellos sólo descubrieron 15 años después: el pack Discovery.</div>
+    </div>
+  </div>
+
+  <!-- POOPH -->
+  <div class="competitor-row">
+    <div>
+      <div class="name">POOPH</div>
+      <div class="web">poophbrand.com · US · 2023</div>
+      <div class="traffic-num">~85K</div>
+      <div class="meta-label">visitas web/mes (estimado SW)</div>
+      <div style="margin-top:8px;font-size:12px;color:var(--muted);">TikTok Shop top seller pet<br>Walmart, Target, Petco<br>Categoría: Pet & Home odor</div>
+    </div>
+    <div>
+      <div class="strengths"><strong>Propuesta</strong>"Patented technology dismantles odors at molecular level. No fragrance, no chemicals." Marketing aspiracional con anuncios de TV americana, escala TikTok Shop brutal (uno de los top sellers USA 2024-2025).</div>
+      <div class="weaknesses" style="margin-top:10px;"><strong>Debilidades</strong>Solo nicho pet (mascotas). Sin presencia en EU. Packaging genérico/funcional, sin alma editorial. Su moat es la distribución US, no el producto.</div>
+      <div class="how"><strong>Cómo gana POOF</strong>Reservamos pet para Kunkay (marca hermana). POOF cubre los 4 nichos no-mascota, donde POOPH no juega. Pack Discovery nos da educación de marca; ellos solo venden 1 botella.</div>
+    </div>
+  </div>
+
+  <!-- ANGRY ORANGE -->
+  <div class="competitor-row">
+    <div>
+      <div class="name">Angry Orange</div>
+      <div class="web">angryorange.com · US · 2018</div>
+      <div class="traffic-num">~120K</div>
+      <div class="meta-label">visitas web/mes (estimado SW)</div>
+      <div style="margin-top:8px;font-size:12px;color:var(--muted);">94K+ Amazon reviews<br>40.000+ pedidos Amazon/mes<br>$20 retail US</div>
+    </div>
+    <div>
+      <div class="strengths"><strong>Propuesta</strong>Aceite de cáscara de naranja como ingrediente protagonista. Storytelling "from orange peels". Reina absoluta del Pet Odor en Amazon US: 94K reviews, 4,5★ promedio, 40K pedidos/mes solo en Amazon.</div>
+      <div class="weaknesses" style="margin-top:10px;"><strong>Debilidades</strong>Una sola fragancia. Solo pet. Brand sin profundidad editorial (es Amazon-first). No vende experiencia, vende solución.</div>
+      <div class="how"><strong>Cómo gana POOF</strong>Mismo enfoque "ingrediente protagonista" pero aplicado a 4 universos. Web editorial donde Amazon no llega. Y desde día uno trabajamos UGC español con reviews reales (Loox + Trustpilot).</div>
+    </div>
+  </div>
+
+  <!-- ZABÓN -->
+  <div class="competitor-row">
+    <div>
+      <div class="name">Zabón</div>
+      <div class="web">zabon.es · Barcelona · familiar</div>
+      <div class="traffic-num">~8K</div>
+      <div class="meta-label">visitas web/mes (estimado SW)</div>
+      <div style="margin-top:8px;font-size:12px;color:var(--muted);">Trustpilot 4,7/5<br>Familia artesanal, sin químicos<br>Aceites esenciales puros</div>
+    </div>
+    <div>
+      <div class="strengths"><strong>Propuesta</strong>"Limpieza ecológica y natural sin químicos." Marca familiar de Barcelona, productos súper-concentrados de aceites esenciales puros (romero, menta, ciprés, bergamota). Pioneros en limpieza sensorial española.</div>
+      <div class="weaknesses" style="margin-top:10px;"><strong>Debilidades</strong>Brand artesanal pero comunicación poco editorial. Distribución limitada (web + algunos retailers). No segmenta por uso (un producto multipropósito). Sin presencia fuerte en TikTok.</div>
+      <div class="how"><strong>Cómo gana POOF</strong>Misma promesa de "natural sin tóxicos" pero con producción industrial escalable y comunicación visual editorial. Segmentamos por uso (ellos no). TikTok-first (ellos casi no juegan ahí).</div>
+    </div>
+  </div>
+
+  <!-- JASPE -->
+  <div class="competitor-row">
+    <div>
+      <div class="name">JASPE</div>
+      <div class="web">jaspe.eco · España · DTC ecológico</div>
+      <div class="traffic-num">~3K</div>
+      <div class="meta-label">visitas web/mes (estimado SW)</div>
+      <div style="margin-top:8px;font-size:12px;color:var(--muted);">Botella reutilizable + recargas<br>Sustentabilidad protagonista<br>DTC puro</div>
+    </div>
+    <div>
+      <div class="strengths"><strong>Propuesta</strong>"Limpieza sensorial sin tóxicos. Botella reutilizable + recargas naturales." Modelo refill ecológico, fragancias diseñadas (bergamota+pomelo+hierba de limón, lavanda+mandarina+cedro). Branding fresco, joven, sostenible.</div>
+      <div class="weaknesses" style="margin-top:10px;"><strong>Debilidades</strong>Producto enfocado a limpieza, no específicamente a eliminación de olores fuertes (tabaco, sudor, mascota). Volumen bajo. Web bonita pero baja conversión sin pack de entrada.</div>
+      <div class="how"><strong>Cómo gana POOF</strong>Ataque frontal al uso eliminador (no limpieza genérica). Misma estética sostenible pero más editorial. Discovery Pack como llave (ellos no tienen). Lanzamos refills en fase 2 para neutralizar su moat.</div>
+    </div>
+  </div>
+
+  <!-- RITUALS -->
+  <div class="competitor-row">
+    <div>
+      <div class="name">Rituals</div>
+      <div class="web">rituals.com · Amsterdam · 2000</div>
+      <div class="traffic-num">~25M</div>
+      <div class="meta-label">visitas web/mes (global SW)</div>
+      <div style="margin-top:8px;font-size:12px;color:var(--muted);">€1.700M facturación 2023<br>500+ tiendas físicas<br>Certificación B Corp 2021</div>
+    </div>
+    <div>
+      <div class="strengths"><strong>Propuesta</strong>"Transformamos rutinas diarias en momentos significativos." Premium asequible, inspiración oriental, packaging de lujo, brand experience física en tiendas. Catálogo de Home Parfum spray 250ml a €19,95.</div>
+      <div class="weaknesses" style="margin-top:10px;"><strong>Debilidades</strong>Es <em>fragancia</em>, no <em>eliminador</em>. Cubre el efecto (ambientar) pero no la causa (neutralizar). El cliente que tiene olor real (mascota, tabaco, deporte) no compra Rituals.</div>
+      <div class="how"><strong>Cómo gana POOF</strong>Misma estética aspiracional, mismo PVP (€17,90 vs €19,95), pero <strong>resolvemos el problema técnico</strong>. Rituals ambienta — POOF elimina. Estamos a su lado en la encimera, no en el armario.</div>
+    </div>
+  </div>
+
+  <!-- ZARA HOME -->
+  <div class="competitor-row">
+    <div>
+      <div class="name">Zara Home</div>
+      <div class="web">zarahome.com · Arteixo · 2003 (Inditex)</div>
+      <div class="traffic-num">~18M</div>
+      <div class="meta-label">visitas web/mes (global SW)</div>
+      <div style="margin-top:8px;font-size:12px;color:var(--muted);">Parte de Inditex<br>Mass premium accessible<br>Mikados, velas, sprays €15–30</div>
+    </div>
+    <div>
+      <div class="strengths"><strong>Propuesta</strong>"Hogar elegante a precio accesible." Distribución masiva (1.000+ tiendas, web fortísima), colaboraciones con perfumistas reconocidos, ediciones limitadas. Mikado a €19,90, velas a €15–25.</div>
+      <div class="weaknesses" style="margin-top:10px;"><strong>Debilidades</strong>Idéntico problema que Rituals: ambienta, no elimina. Brand global sin foco en problema técnico. Comunicación tradicional (no TikTok, no UGC).</div>
+      <div class="how"><strong>Cómo gana POOF</strong>Atacamos la <strong>raíz funcional</strong> que ellos ignoran. Estamos en el carrito al lado del mikado: ellos ambientan, nosotros neutralizamos. PVP similar, propuesta complementaria, no sustituta.</div>
+    </div>
+  </div>
+
+  <!-- EOS -->
+  <div class="competitor-row">
+    <div>
+      <div class="name">EOS Odor Eliminator</div>
+      <div class="web">Amazon ES · TECOSER MC · marca técnica</div>
+      <div class="traffic-num">n/d</div>
+      <div class="meta-label">~4K reviews Amazon ES</div>
+      <div style="margin-top:8px;font-size:12px;color:var(--muted);">€15,19 1L mascotas<br>Botella blanca funcional<br>Sin presencia editorial</div>
+    </div>
+    <div>
+      <div class="strengths"><strong>Propuesta</strong>El "funcional español". 1L blanco, Amazon, 4.155 reviews, 4,4★. Volumen y precio: €15,19 por 1L, derroche disponible. El competidor que el PDF Brandy señala como "el que se esconde en el armario" (p. 8).</div>
+      <div class="weaknesses" style="margin-top:10px;"><strong>Debilidades</strong>Es exactamente lo que NO queremos ser. Funcional, blanco, escondido. Sin marca, sin storytelling, sin TikTok, sin web propia. Comodity puro.</div>
+      <div class="how"><strong>Cómo gana POOF</strong>Misma eficacia (formulación enzimática equivalente o superior) en formato la mitad de tamaño y el doble de aspiracional. Cobramos prima por marca: €17,90 nuestro 500ml vs €15,19 su 1L — y el cliente lo deja en la encimera.</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <h3>Matriz visual: dónde juega cada uno</h3>
+  <table style="margin-top:18px;" class="keyword-table">
+    <thead>
+      <tr><th>Marca</th><th>Eficacia técnica</th><th>Editorial / Brand</th><th>Precio €</th><th>Plataforma fuerte</th><th>España?</th><th>4 universos?</th><th>Discovery pack?</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>POOF<span style="color:var(--red);">*</span></strong></td><td><span class="dot g"></span>Alta</td><td><span class="dot g"></span>Alta</td><td>17,90</td><td>TikTok Shop + Shopify</td><td><span class="dot g"></span>Sí (local)</td><td><span class="dot g"></span>Sí (4)</td><td><span class="dot g"></span>Sí</td></tr>
+      <tr><td>Poo-Pourri</td><td><span class="dot y"></span>Media</td><td><span class="dot g"></span>Alta</td><td>~$15</td><td>Amazon US</td><td><span class="dot r"></span>No</td><td><span class="dot r"></span>1 (baño)</td><td><span class="dot y"></span>Sí (sólo US)</td></tr>
+      <tr><td>POOPH</td><td><span class="dot g"></span>Alta</td><td><span class="dot y"></span>Media</td><td>~$20</td><td>TikTok Shop + Walmart</td><td><span class="dot r"></span>No</td><td><span class="dot r"></span>1 (pet)</td><td><span class="dot r"></span>No</td></tr>
+      <tr><td>Angry Orange</td><td><span class="dot g"></span>Alta</td><td><span class="dot y"></span>Media</td><td>~$20</td><td>Amazon US</td><td><span class="dot r"></span>No</td><td><span class="dot r"></span>1 (pet)</td><td><span class="dot r"></span>No</td></tr>
+      <tr><td>Zabón</td><td><span class="dot g"></span>Alta</td><td><span class="dot y"></span>Media</td><td>~12–18</td><td>Web propia</td><td><span class="dot g"></span>Sí</td><td><span class="dot y"></span>2 (limpieza)</td><td><span class="dot r"></span>No</td></tr>
+      <tr><td>JASPE</td><td><span class="dot y"></span>Media</td><td><span class="dot g"></span>Alta</td><td>~14–20</td><td>Web propia + Refill</td><td><span class="dot g"></span>Sí</td><td><span class="dot y"></span>2 (limpieza)</td><td><span class="dot r"></span>No</td></tr>
+      <tr><td>Rituals</td><td><span class="dot r"></span>Baja (ambienta)</td><td><span class="dot g"></span>Alta</td><td>19,95</td><td>Tiendas físicas + web</td><td><span class="dot g"></span>Sí</td><td><span class="dot y"></span>Fragancia (no uso)</td><td><span class="dot g"></span>Sí</td></tr>
+      <tr><td>Zara Home</td><td><span class="dot r"></span>Baja (ambienta)</td><td><span class="dot g"></span>Alta</td><td>15–30</td><td>Tiendas físicas + web</td><td><span class="dot g"></span>Sí</td><td><span class="dot r"></span>No</td><td><span class="dot r"></span>No</td></tr>
+      <tr><td>EOS</td><td><span class="dot g"></span>Alta</td><td><span class="dot r"></span>Nula</td><td>15,19 (1L)</td><td>Amazon ES</td><td><span class="dot g"></span>Sí</td><td><span class="dot r"></span>1 mass</td><td><span class="dot r"></span>No</td></tr>
+    </tbody>
+  </table>
+
+  <div class="card ink" style="margin-top:32px;">
+    <h3 style="color:var(--yellow);">El insight clave de los datos SimilarWeb</h3>
+    <p style="color:var(--paper);">
+      Poo-Pourri factura $50–75M anuales con <strong>1.100 visitas web/mes</strong>. Eso significa que
+      la web es vitrina, no canal — el dinero está en Amazon, retail y TikTok Shop. <strong>Nuestro
+      modelo es el espejo invertido</strong>: Shopify será nuestro mayor margen (no nuestro mayor volumen);
+      el volumen vendrá de TikTok Shop y Amazon, y Shopify se nutre por marketing orgánico, no por
+      SEO de masas. Esto cambia la mezcla de inversión: menos SEO, más contenido vertical.
+    </p>
+  </div>
+</section>
+
+<!-- CANALES -->
+<section id="canales">
+  <span class="eyebrow">05 · Canales de distribución</span>
+  <h2>4 canales, 1 orquesta.<span class="arrow">↗</span></h2>
+
+  <p class="lead" style="max-width:900px;">
+    Vamos a estar simultáneamente en TikTok Shop España, Shopify (web propia), Meta (Facebook +
+    Instagram Shopping) y Amazon ES. Cada canal tiene rol específico, KPI propio y operativa
+    distinta. Aquí entramos al detalle de cada uno.
+  </p>
+
+  <div class="grid grid-2" style="margin-top:32px;gap:24px;">
+
+    <div class="channel-card t">
+      <span class="pill red">CANAL 1 · DISCOVERY MASIVO</span>
+      <h3>TikTok Shop España</h3>
+      <p><strong>Rol:</strong> aceleración de awareness + ventas impulsivas a través de UGC y afiliados. Es nuestra primera línea de fuego.</p>
+      <h4>Setup operativo</h4>
+      <ul class="tick">
+        <li>Cuenta vendedor + verificación + IBAN España + alta hacienda</li>
+        <li>Comisión: 4% promo 60 días → 9% estándar después</li>
+        <li>Showcase + LIVE Shopping semanal (jueves 21h)</li>
+        <li>Programa afiliados (% recurring para creators que mueven >€500)</li>
+        <li>1 catálogo entero subido día 1, no solo 1 SKU</li>
+      </ul>
+      <h4>KPI</h4>
+      <p>CPA &lt;€7 · GMV/mes objetivo mes 3: €4.000 · % de ventas vía afiliados: 40%</p>
+    </div>
+
+    <div class="channel-card s">
+      <span class="pill green">CANAL 2 · MARGEN MÁXIMO</span>
+      <h3>Shopify (poof.es)</h3>
+      <p><strong>Rol:</strong> tienda hogar de marca, lugar donde el cliente "se convierte". Es donde activamos suscripción y subimos LTV.</p>
+      <h4>Stack técnico</h4>
+      <ul class="tick">
+        <li>Shopify Basic (€29/mes)</li>
+        <li>Klaviyo (email + SMS, gratis hasta 250 contactos)</li>
+        <li>Loox (reviews con fotos, €9,99/mes)</li>
+        <li>ReConvert (upsell + post-purchase, €4,99/mes)</li>
+        <li>Subscription app (Recharge o Shopify Sub, ~€19/mes)</li>
+      </ul>
+      <h4>KPI</h4>
+      <p>Tasa conversión &gt;1,8% · AOV objetivo €28 · % suscripción en checkout: 18%</p>
+    </div>
+
+    <div class="channel-card m">
+      <span class="pill blue">CANAL 3 · AMPLIFICACIÓN PAGADA</span>
+      <h3>Meta (Facebook + Instagram Shopping)</h3>
+      <p><strong>Rol:</strong> tráfico cualificado a Shopify, retargeting agresivo y catálogo dinámico. Desde día 1 con Pixel + CAPI.</p>
+      <h4>Configuración Meta</h4>
+      <ul class="tick">
+        <li>Business Manager + Pixel + Conversions API server-side</li>
+        <li>Catálogo de productos sincronizado vía Shopify channel</li>
+        <li>Advantage+ Shopping Campaigns (€8/día/SKU inicial)</li>
+        <li>Audiencias custom: visitantes 30d, carrito 7d, compradores LTV>€50</li>
+        <li>3 creativos por adset (UGC + statement + diferenciador)</li>
+      </ul>
+      <h4>KPI</h4>
+      <p>CPC &lt;€0,80 · ROAS objetivo mes 3: 2,5× · CTR &gt;1,5%</p>
+    </div>
+
+    <div class="channel-card a">
+      <span class="pill yellow">CANAL 4 · CREDIBILIDAD Y VOLUMEN</span>
+      <h3>Amazon ES (Vendor Central)</h3>
+      <p><strong>Rol:</strong> capturar la demanda de búsqueda existente ("eliminador olor casa", "spray sofá"). No es prioridad mes 1; entra en mes 3.</p>
+      <h4>Setup operativo</h4>
+      <ul class="tick">
+        <li>Cuenta Profesional €39/mes</li>
+        <li>FBA para los 4 SKUs principales</li>
+        <li>Marca registrada Amazon Brand Registry (requiere TM en trámite)</li>
+        <li>A+ Content premium (mockups + storytelling)</li>
+        <li>Sponsored Products inicial €5/día/SKU</li>
+      </ul>
+      <h4>KPI</h4>
+      <p>ACOS &lt;30% · Reviews mes 6: 100+ · Rank cat. eliminadores top 20</p>
+    </div>
+
+  </div>
+
+  <div class="divider"></div>
+
+  <h3>El funnel de adquisición (objetivo mes 3)</h3>
+  <div class="funnel">
+    <div class="funnel-row">
+      <div>TikTok Shop impressions</div>
+      <div><div class="funnel-bar" style="width:100%;"></div></div>
+      <div class="v">~500.000</div>
+    </div>
+    <div class="funnel-row">
+      <div>Reproducciones video orgánico</div>
+      <div><div class="funnel-bar" style="width:60%;background:var(--yellow);"></div></div>
+      <div class="v">~300.000</div>
+    </div>
+    <div class="funnel-row">
+      <div>Visitas Shopify</div>
+      <div><div class="funnel-bar" style="width:18%;background:var(--yellow-2);"></div></div>
+      <div class="v">~9.000</div>
+    </div>
+    <div class="funnel-row">
+      <div>Carritos creados</div>
+      <div><div class="funnel-bar" style="width:6%;background:#FFB81C;"></div></div>
+      <div class="v">~600</div>
+    </div>
+    <div class="funnel-row">
+      <div>Pedidos confirmados</div>
+      <div><div class="funnel-bar" style="width:3%;background:var(--red);"></div></div>
+      <div class="v">~270</div>
+    </div>
+    <div class="funnel-row">
+      <div>Recurrentes mes 4+</div>
+      <div><div class="funnel-bar" style="width:1%;background:#fff;"></div></div>
+      <div class="v">~48</div>
+    </div>
+  </div>
+</section>
+
+<!-- WEB MOCKUP -->
+<section id="web" style="background:var(--ink);color:var(--paper);">
+  <span class="eyebrow" style="background:var(--yellow);color:var(--ink);">06 · Web</span>
+  <h2 style="color:var(--paper);">La web no es una tienda.<br>Es un manifiesto que vende.<span class="arrow">↗</span></h2>
+
+  <p class="lead" style="color:var(--paper);max-width:900px;">
+    Hemos preparado un <strong>mockup HTML navegable</strong> de la web POOF, con homepage editorial,
+    ficha de producto, página About y checkout simulado. Lo encuentras en el archivo separado
+    <code>POOF_web_mockup.html</code>. Sirve para enseñárselo al inversor con una sola pestaña abierta.
+  </p>
+
+  <div class="grid grid-2" style="margin-top:32px;gap:32px;">
+    <div>
+      <h3 style="color:var(--yellow);">Arquitectura de la web</h3>
+      <ul class="tick" style="color:var(--paper);">
+        <li><strong>Home</strong> — Hero editorial con un vídeo loop (botella en encimera de mármol, alguien spray-eando). Manifiesto en 1 frase. Grid de los 4 SKUs + el Discovery.</li>
+        <li><strong>/shop</strong> — Catálogo filtrable por uso (Hogar, Sport, Smoke, Drive) o por fragancia.</li>
+        <li><strong>/product/hero-500</strong> — Ficha con galería (botella + lifestyle + ingredientes), copy editorial, "cómo funciona en 30 segundos", FAQ enzimática, reviews Loox, sticky add-to-cart.</li>
+        <li><strong>/discovery</strong> — Página dedicada al pack como llave de entrada, con upsell a suscripción al checkout.</li>
+        <li><strong>/manifesto</strong> — La filosofía completa. Aquí entran los textos largos editoriales tipo Alpha Spirit.</li>
+        <li><strong>/journal</strong> — Blog editorial con guías ("Cómo eliminar el olor a tabaco de un sofá real", "El día que el coche dejó de oler a perro mojado").</li>
+        <li><strong>/sustainability</strong> — Compromiso ambiental (botella PET reciclado, refill en fase 2).</li>
+        <li><strong>/checkout</strong> — Shopify estándar con personalización CSS, upsell ReConvert post-compra.</li>
+      </ul>
+    </div>
+
+    <div>
+      <h3 style="color:var(--yellow);">Referencias visuales (mood)</h3>
+      <ul class="tick" style="color:var(--paper);">
+        <li><strong>Alpha Spirit (alpha-spirit-store.com)</strong> — Foto editorial, fondo plano, producto protagonista, tipografía neogrótesca, tono confiado.</li>
+        <li><strong>Aesop (aesop.com)</strong> — Texto largo, márgenes amplios, sin gritos. La calma como argumento de venta.</li>
+        <li><strong>Le Labo (lelabofragrances.com)</strong> — Tipografía editorial, color contenido, foco en el producto en escena de vida.</li>
+        <li><strong>Glossier (glossier.com)</strong> — Cómo usa color plano y producto en grid. El plano editorial pero accesible.</li>
+        <li><strong>Off-White (off---white.com)</strong> — Cómo usa el asterisco<span style="color:var(--yellow);">*</span> y las comillas como sello de marca.</li>
+        <li><strong>Kinfill (kinfill.com)</strong> — La marca que aparece en la portada del PDF Brandy. Botella eternamente reutilizable, branding ascético.</li>
+      </ul>
+
+      <h3 style="color:var(--yellow);margin-top:24px;">Sistema visual</h3>
+      <p style="color:var(--paper);">
+        Tipografía display: <strong>Inter Display</strong> (free, Google Fonts).<br>
+        Tipografía texto: <strong>Inter</strong>.<br>
+        Paleta: crema #F2EDE3 · ink #1A1A1A · yellow #F8E63C · red #D43A2F · olive #5C6342.<br>
+        Cuadrícula: 12 columnas, 80px de gutter en desktop.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- CONTENIDO -->
+<section id="contenido">
+  <span class="eyebrow">07 · Contenido</span>
+  <h2>Una sola cuenta.<br>@poof.es<span class="arrow">↗</span></h2>
+
+  <div class="grid grid-2" style="margin-top:32px;">
+    <div>
+      <p class="lead">
+        Decisión tomada: <strong>una sola cuenta para toda la marca</strong> en cada plataforma (no tres
+        verticales separadas). El motivo es simple: enredarse mantiene tres backlogs, tres calendarios
+        y triplica el coste operativo cuando aún somos 1 persona. Ganamos coherencia, simplificamos
+        gestión, y dejamos que los hashtags hagan la segmentación.
+      </p>
+      <p>
+        Cada canal tiene rol específico, ritmo definido y formato propio. Una sola voz, cuatro escenarios
+        de uso convertidos en cuatro tipos de contenido. El bulldog mencionado en el PDF Brandy
+        (p. 14-15) lo guardamos como <strong>personaje narrativo recurrente</strong> en algunas
+        piezas (no es logo), apareciendo de tanto en tanto en momentos cotidianos —no en cada vídeo.
+      </p>
+    </div>
+    <div class="card ink">
+      <h3 style="color:var(--yellow);">Cuentas activas día 1</h3>
+      <table style="background:transparent;border:none;color:var(--paper);">
+        <tr style="background:transparent;"><td style="color:var(--paper);border-color:rgba(255,255,255,.15);"><strong>TikTok</strong></td><td style="color:var(--paper);border-color:rgba(255,255,255,.15);">@poof.es</td></tr>
+        <tr style="background:transparent;"><td style="color:var(--paper);border-color:rgba(255,255,255,.15);"><strong>Instagram</strong></td><td style="color:var(--paper);border-color:rgba(255,255,255,.15);">@poof.es</td></tr>
+        <tr style="background:transparent;"><td style="color:var(--paper);border-color:rgba(255,255,255,.15);"><strong>YouTube</strong></td><td style="color:var(--paper);border-color:rgba(255,255,255,.15);">@poofbrand</td></tr>
+        <tr style="background:transparent;"><td style="color:var(--paper);border-color:rgba(255,255,255,.15);"><strong>Pinterest</strong></td><td style="color:var(--paper);border-color:rgba(255,255,255,.15);">@poofbrand</td></tr>
+        <tr style="background:transparent;"><td style="color:var(--paper);border-color:rgba(255,255,255,.15);"><strong>Web journal</strong></td><td style="color:var(--paper);border-color:rgba(255,255,255,.15);">poof.es/journal</td></tr>
+        <tr style="background:transparent;"><td style="color:var(--paper);border-color:rgba(255,255,255,.15);"><strong>Newsletter</strong></td><td style="color:var(--paper);border-color:rgba(255,255,255,.15);">hello@poof.es</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <h3>Cuatro tipos de contenido recurrentes</h3>
+  <div class="grid grid-4" style="margin-top:20px;">
+    <div class="card">
+      <span class="pill red">PILLAR 1</span>
+      <h4 style="margin-top:8px;">PRODUCT IN USE</h4>
+      <p>Vídeo de 15s mostrando el problema y la solución. Antes/después real. Foco: TikTok / Reels. Ritmo: 3/semana.</p>
+    </div>
+    <div class="card">
+      <span class="pill blue">PILLAR 2</span>
+      <h4 style="margin-top:8px;">EDITORIAL / SCENE</h4>
+      <p>Foto y vídeo de "still life": botella en escenas de vida real. Pareja desayunando, alguien fumando. Foco: IG feed / Pinterest. Ritmo: 2/semana.</p>
+    </div>
+    <div class="card">
+      <span class="pill yellow">PILLAR 3</span>
+      <h4 style="margin-top:8px;">FOUNDER STORY / BTS</h4>
+      <p>Building in public. Cuánto facturamos, cuánto invertimos en ads, cuántas devoluciones. Foco: IG stories / TikTok. Ritmo: 4/semana (stories).</p>
+    </div>
+    <div class="card">
+      <span class="pill green">PILLAR 4</span>
+      <h4 style="margin-top:8px;">UGC / CREATORS</h4>
+      <p>Repost de creators afiliados, reviews reales, ASMR del spray. Foco: TikTok / Reels. Ritmo: 2/semana.</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <h3>Calendario tipo · 1 semana</h3>
+  <table style="margin-top:18px;">
+    <thead><tr><th>Día</th><th>Pillar</th><th>Plataforma</th><th>Formato</th><th>Tiempo producción</th></tr></thead>
+    <tbody>
+      <tr><td>Lunes</td><td>Product in use</td><td>TikTok + Reels</td><td>15s vídeo "before/after"</td><td>45 min</td></tr>
+      <tr><td>Martes</td><td>Editorial</td><td>IG feed + Pinterest</td><td>Foto still life 1080×1350</td><td>60 min (puede ser banco)</td></tr>
+      <tr><td>Miércoles</td><td>Founder story</td><td>IG stories</td><td>5 historias raw</td><td>20 min</td></tr>
+      <tr><td>Jueves</td><td>UGC repost</td><td>TikTok</td><td>Re-edit con comentario en pantalla</td><td>30 min</td></tr>
+      <tr><td>Viernes</td><td>Product in use</td><td>TikTok</td><td>15s ASMR del spray</td><td>40 min</td></tr>
+      <tr><td>Sábado</td><td>Editorial</td><td>IG feed</td><td>Carrusel 5 slides "Smoke Edition"</td><td>50 min</td></tr>
+      <tr><td>Domingo</td><td>Founder story</td><td>IG stories + TikTok</td><td>Weekly recap (cifras, lecciones)</td><td>25 min</td></tr>
+    </tbody>
+  </table>
+  <p class="footnote">Carga total semanal: ~4,5 horas de producción + 1h de community. Sostenible para 1 persona.</p>
+</section>
+
+<!-- STACK IA -->
+<section id="ia" style="background:var(--paper-2);">
+  <span class="eyebrow">08 · Stack IA · Por tarea, no por capricho</span>
+  <h2>Qué IA usar<br>para qué cosa.<span class="arrow">↗</span></h2>
+
+  <p class="lead" style="max-width:900px;">
+    Recomendaciones específicas, ordenadas por función. Marcamos con <span class="pill green">YA TIENES</span>
+    lo que ya está en tu arsenal según conversación previa, y con <span class="pill yellow">SUMAR</span> lo
+    nuevo. Coste mensual total recomendado: ~€60/mes (~€720/año).
+  </p>
+
+  <h3 style="margin-top:32px;">→ Edición de vídeo (TikTok / Reels)</h3>
+  <div style="background:#fff;padding:24px;border:1px solid var(--line);">
+    <div class="ai-tool">
+      <div class="tool">CapCut Pro <span class="pill green">YA TIENES</span></div>
+      <div class="desc">Edición mobile/desktop. Subtítulos automáticos, transiciones de templates virales, keyframes. Para los 4-6 vídeos cortos semanales. Si ya lo tienes en plan Pro, suficiente.</div>
+      <div class="cost">€9,99/mes</div>
+    </div>
+    <div class="ai-tool">
+      <div class="tool">Descript <span class="pill yellow">SUMAR</span></div>
+      <div class="desc">Para founder content largo (founder story tipo "cómo facturé X este mes"). Edita por transcripción, elimina "ehm" automático, exporta a Reels.</div>
+      <div class="cost">€15/mes</div>
+    </div>
+    <div class="ai-tool">
+      <div class="tool">Submagic</div>
+      <div class="desc">Si CapCut no te basta para subtítulos animados estilo MrBeast. Más rápido. Opcional.</div>
+      <div class="cost">€16/mes</div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:32px;">→ Imagen / Mockup / Packaging</h3>
+  <div style="background:#fff;padding:24px;border:1px solid var(--line);">
+    <div class="ai-tool">
+      <div class="tool">Nano Banana <span class="pill green">YA TIENES</span></div>
+      <div class="desc">Para mockups de packaging y composiciones product-in-scene. Excelente para fotos editoriales sin sesión.</div>
+      <div class="cost">€19/mes</div>
+    </div>
+    <div class="ai-tool">
+      <div class="tool">Midjourney v7 <span class="pill yellow">SUMAR</span></div>
+      <div class="desc">Para conceptos editoriales, references de campañas, moodboards. El estándar de calidad para fotografía aspiracional.</div>
+      <div class="cost">€10/mes plan básico</div>
+    </div>
+    <div class="ai-tool">
+      <div class="tool">Flux 1.1 Pro (vía Replicate)</div>
+      <div class="desc">Para fotorealismo de producto. Alternativa a Midjourney cuando necesitas algo específico con tu botella real (subiendo referencia).</div>
+      <div class="cost">€0,05/imagen (pay-per-use)</div>
+    </div>
+    <div class="ai-tool">
+      <div class="tool">Photoroom</div>
+      <div class="desc">Eliminar fondos, montar en lifestyle, generar variaciones. Móvil. Pago anual.</div>
+      <div class="cost">€7/mes</div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:32px;">→ Vídeo generativo (anuncios, B-roll)</h3>
+  <div style="background:#fff;padding:24px;border:1px solid var(--line);">
+    <div class="ai-tool">
+      <div class="tool">Sora 2 <span class="pill yellow">SUMAR</span></div>
+      <div class="desc">OpenAI. Para B-roll generativo cuando no quieres rodar. 5-10s de calidad cinematográfica. Anuncios Meta + TikTok.</div>
+      <div class="cost">€20/mes (con ChatGPT Plus)</div>
+    </div>
+    <div class="ai-tool">
+      <div class="tool">Runway Gen-4</div>
+      <div class="desc">Alternativa a Sora con mejor control de movimiento. Bueno para transiciones impossible.</div>
+      <div class="cost">€12/mes plan estándar</div>
+    </div>
+    <div class="ai-tool">
+      <div class="tool">Kling 2.0</div>
+      <div class="desc">Chino, calidad altísima, más barato. Excelente para physical realism.</div>
+      <div class="cost">~€8/mes</div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:32px;">→ Voz / Voiceover</h3>
+  <div style="background:#fff;padding:24px;border:1px solid var(--line);">
+    <div class="ai-tool">
+      <div class="tool">ElevenLabs <span class="pill yellow">SUMAR</span></div>
+      <div class="desc">Voces en español natural. Para voiceovers de anuncios cuando no quieres grabar tu voz, o para crear voz mascota POOF (bulldog).</div>
+      <div class="cost">€5/mes plan starter</div>
+    </div>
+    <div class="ai-tool">
+      <div class="tool">HeyGen</div>
+      <div class="desc">Avatar IA. Útil si quieres "tu yo digital" hablando en otros idiomas para expandir a UE.</div>
+      <div class="cost">€24/mes opcional</div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:32px;">→ Copy / Estrategia / Operaciones</h3>
+  <div style="background:#fff;padding:24px;border:1px solid var(--line);">
+    <div class="ai-tool">
+      <div class="tool">Claude Sonnet <span class="pill green">YA TIENES</span></div>
+      <div class="desc">Tu compañero de pensamiento. Copy de productos, descripciones SEO, briefs creativos, análisis de competencia, este documento. El cerebro de la operación.</div>
+      <div class="cost">€20/mes Pro</div>
+    </div>
+    <div class="ai-tool">
+      <div class="tool">ChatGPT (con GPTs)</div>
+      <div class="desc">Para tareas operativas rápidas, generación de variantes de copy de anuncios A/B, análisis de comentarios.</div>
+      <div class="cost">€20/mes Plus</div>
+    </div>
+    <div class="ai-tool">
+      <div class="tool">Perplexity Pro</div>
+      <div class="desc">Investigación de mercado en tiempo real (datos competidores, búsquedas, tendencias). Útil cuando un dato necesita ser fresco.</div>
+      <div class="cost">€20/mes</div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:32px;">→ Análisis de ads + Reporting</h3>
+  <div style="background:#fff;padding:24px;border:1px solid var(--line);">
+    <div class="ai-tool">
+      <div class="tool">Triple Whale</div>
+      <div class="desc">Atribución multitoque cross-canal (TikTok + Meta + Shopify). Caro pero ahorra dinero en optimización. Solo cuando facturas >€10K/mes.</div>
+      <div class="cost">€100+/mes (fase 2)</div>
+    </div>
+    <div class="ai-tool">
+      <div class="tool">Polar Analytics</div>
+      <div class="desc">Alternativa más barata. Dashboards consolidados.</div>
+      <div class="cost">€39/mes</div>
+    </div>
+  </div>
+
+  <div class="card ink" style="margin-top:32px;">
+    <h3 style="color:var(--yellow);">Stack recomendado para empezar HOY (mes 1)</h3>
+    <p style="color:var(--paper);">
+      <strong>Ya tienes:</strong> CapCut Pro + Claude + Nano Banana = €49/mes<br>
+      <strong>Suma esto:</strong> Midjourney (€10) + ElevenLabs (€5) + Photoroom (€7) + Descript (€15) = <strong>€37/mes adicionales</strong><br>
+      <strong>Total stack IA mes 1:</strong> <span style="color:var(--yellow);font-size:24px;">~€86/mes</span> · €1.032/año
+    </p>
+    <p style="color:var(--paper);margin-top:8px;">
+      Sora, Runway, Triple Whale y Submagic los activas cuando empieces a facturar >€5K/mes y necesites
+      escalar producción. Hoy no los necesitas.
+    </p>
+  </div>
+</section>
+
+<!-- PUBLICIDAD -->
+<section id="publicidad">
+  <span class="eyebrow">09 · Publicidad pagada</span>
+  <h2>Cómo gastar 1.500€<br>en 90 días sin tirarlos.<span class="arrow">↗</span></h2>
+
+  <p class="lead" style="max-width:900px;">
+    De los 6.000€ recomendados, <strong>1.500€ van a ads</strong> (no más). Sin pixel calibrado, ads
+    grandes son humo. La curva es: aprender los primeros 30 días con creatividades baratas, doblar
+    el budget sobre el ganador en los 30 siguientes, y escalar al ganador comprobado en mes 3.
+  </p>
+
+  <div class="grid grid-3" style="margin-top:32px;">
+    <div class="card">
+      <h3>Meta · 60% del budget</h3>
+      <p>€900 totales repartidos:</p>
+      <ul class="tick">
+        <li>Mes 1: €200 · 4 anuncios test, €1,60/día/anuncio</li>
+        <li>Mes 2: €300 · Doblar ganador, retargeting carrito</li>
+        <li>Mes 3: €400 · Advantage+ Shopping con catálogo</li>
+      </ul>
+      <p style="margin-top:12px;font-size:13px;color:var(--muted);">Foco: HERO 500ml + Discovery Pack. KPIs: ROAS &gt;2× mes 3.</p>
+    </div>
+    <div class="card">
+      <h3>TikTok Ads · 30%</h3>
+      <p>€450 totales:</p>
+      <ul class="tick">
+        <li>Mes 1: €100 · Spark Ads sobre tu UGC orgánico</li>
+        <li>Mes 2: €150 · Reforzar vídeos virales</li>
+        <li>Mes 3: €200 · Catalog ads dentro TikTok Shop</li>
+      </ul>
+      <p style="margin-top:12px;font-size:13px;color:var(--muted);">Foco: vídeos con &gt;500 views orgánicos primero. Nunca ad de cero.</p>
+    </div>
+    <div class="card">
+      <h3>Influencers / UGC · 10%</h3>
+      <p>€150 totales:</p>
+      <ul class="tick">
+        <li>5 paquetes de producto a microcreators (€30 c/u valor producto + envío)</li>
+        <li>1 colaboración pagada a creator nicho (€100)</li>
+      </ul>
+      <p style="margin-top:12px;font-size:13px;color:var(--muted);">Buscamos creators de hogar/lifestyle, no influencers genéricos.</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <h3>Estructura de campañas Meta · Día 1</h3>
+  <table>
+    <thead>
+      <tr><th>Campaña</th><th>Objetivo</th><th>Audiencia</th><th>Budget/día</th><th>Creativos</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>CAM01 · Awareness HERO</strong></td><td>Ventas</td><td>Lookalike 1% open + intereses (limpieza casa, smell, Marie Kondo)</td><td>€5</td><td>3 vídeos UGC + 1 statement</td></tr>
+      <tr><td><strong>CAM02 · Discovery Pack</strong></td><td>Ventas</td><td>Open + intereses (regalo, packs descubrimiento, Sephora)</td><td>€5</td><td>2 vídeos editorial + 2 carrusel</td></tr>
+      <tr><td><strong>CAM03 · Retargeting cart</strong></td><td>Conversión</td><td>Visitantes 30d + carrito 7d</td><td>€3</td><td>4 estáticos con cupón 10%</td></tr>
+      <tr><td><strong>CAM04 · Smoke / Drive (vertical)</strong></td><td>Tráfico</td><td>Intereses fumadores + conductores VTC</td><td>€3</td><td>1 statement + 1 problema/solución</td></tr>
+    </tbody>
+  </table>
+  <p class="footnote">Total inicial: €16/día = €480/mes. Activación gradual, no todo al día 1. Empezamos CAM01+CAM03 semana 1, sumamos las demás en semana 2-3 según señal del pixel.</p>
+</section>
+
+<!-- SUSCRIPCIÓN -->
+<section id="suscripcion" style="background:var(--olive);color:var(--paper);">
+  <span class="eyebrow" style="background:var(--yellow);color:var(--ink);">10 · Suscripción</span>
+  <h2 style="color:var(--paper);">El motor silencioso<br>del LTV.<span class="arrow">↗</span></h2>
+
+  <div class="grid grid-2">
+    <div>
+      <p class="lead" style="color:var(--paper);">
+        Cliente single de POOF HERO: factura €17,90, le sacamos €7,60 de margen, no vuelve. Cliente
+        suscripción: factura €14,90/mes (15% off), le sacamos €6,10 al mes pero <strong>retorna 8,5
+        meses promedio</strong> (benchmark sector home care). LTV efectivo: <strong>€51,85</strong>
+        contra €7,60 del single. Multiplicador <strong>6,8×</strong>.
+      </p>
+      <p style="color:var(--paper);">
+        Por eso la suscripción no es bonita, es supervivencia. Sin ella nuestro CAC nunca cuadra. Con
+        ella, podemos pagar €20+ por adquirir un cliente y seguir teniendo unit economics positivos.
+      </p>
+    </div>
+
+    <div>
+      <h4 style="color:var(--yellow);">Mecánica suscripción HERO 500ml</h4>
+      <table style="background:transparent;border:none;color:var(--paper);">
+        <tr style="background:transparent;"><td style="color:var(--paper);border-color:rgba(255,255,255,.15);">PVP único</td><td style="color:var(--paper);border-color:rgba(255,255,255,.15);text-align:right;">€17,90</td></tr>
+        <tr style="background:transparent;"><td style="color:var(--paper);border-color:rgba(255,255,255,.15);">PVP suscripción mensual (15% off)</td><td style="color:var(--paper);border-color:rgba(255,255,255,.15);text-align:right;"><strong style="color:var(--yellow);">€14,90/mes</strong></td></tr>
+        <tr style="background:transparent;"><td style="color:var(--paper);border-color:rgba(255,255,255,.15);">Margen unitario suscripción</td><td style="color:var(--paper);border-color:rgba(255,255,255,.15);text-align:right;">€6,10</td></tr>
+        <tr style="background:transparent;"><td style="color:var(--paper);border-color:rgba(255,255,255,.15);">Retención media (estimado)</td><td style="color:var(--paper);border-color:rgba(255,255,255,.15);text-align:right;">8,5 meses</td></tr>
+        <tr style="background:transparent;"><td style="color:var(--paper);border-color:rgba(255,255,255,.15);"><strong style="color:var(--yellow);">LTV efectivo</strong></td><td style="color:var(--paper);border-color:rgba(255,255,255,.15);text-align:right;"><strong style="color:var(--yellow);">€51,85</strong></td></tr>
+      </table>
+      <p style="font-size:13px;color:var(--paper);opacity:.7;margin-top:12px;">
+        Si llegamos a 200 suscritores en mes 12, MRR recurrente = <strong>€2.980/mes</strong>.
+        Eso significa que sólo del recurring cubrimos costes fijos (Shopify €29 + apps €34 + dominio + email).
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- FINANCIERO -->
+<section id="financiero">
+  <span class="eyebrow">11 · Modelo financiero · Unit economics</span>
+  <h2>Los números<br>sin trucos.<span class="arrow">↗</span></h2>
+
+  <h3>Escenario base · Mes 6</h3>
+  <table style="margin-top:18px;">
+    <thead>
+      <tr><th>Canal</th><th>Volumen unidades</th><th>AOV €</th><th>GMV mes €</th><th>Comisión</th><th>Neto plataforma</th><th>Margen neto/u €</th><th>Margen total €</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>TikTok Shop</td><td>180</td><td>19,50</td><td>3.510</td><td>9%</td><td>3.194</td><td>5,90</td><td>1.062</td></tr>
+      <tr><td>Shopify</td><td>120</td><td>28,40</td><td>3.408</td><td>~4%</td><td>3.272</td><td>10,20</td><td>1.224</td></tr>
+      <tr><td>Amazon</td><td>80</td><td>17,90</td><td>1.432</td><td>15%</td><td>1.217</td><td>4,40</td><td>352</td></tr>
+      <tr><td>Suscripción</td><td>50 activos</td><td>14,90</td><td>745</td><td>~4%</td><td>715</td><td>6,10</td><td>305</td></tr>
+      <tr style="background:var(--yellow);"><td><strong>TOTAL MES 6</strong></td><td>430 envíos</td><td>—</td><td><strong>9.095</strong></td><td>—</td><td>8.398</td><td>—</td><td><strong>2.943</strong></td></tr>
+    </tbody>
+  </table>
+  <p class="footnote">Después de costes fijos mensuales (Shopify €29 + Klaviyo €25 + Loox €9,99 + ReConvert €4,99 + Recharge €19 + Stack IA €86 + Dominios €5 + Domiciliación = <strong>~€180/mes</strong>) → <strong>EBITDA mes 6 ≈ €2.763</strong>.</p>
+
+  <div class="divider"></div>
+
+  <h3>Proyección 12 meses · Ingresos vs costes acumulados</h3>
+  <table>
+    <thead>
+      <tr><th>Mes</th><th>GMV €</th><th>Margen €</th><th>Costes fijos €</th><th>Inversión ads €</th><th>Cash flow mes €</th><th>Cash acumulado €</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>M1</td><td>1.200</td><td>400</td><td>180</td><td>400</td><td>-180</td><td>-180</td></tr>
+      <tr><td>M2</td><td>2.400</td><td>800</td><td>180</td><td>500</td><td>+120</td><td>-60</td></tr>
+      <tr><td>M3</td><td>4.200</td><td>1.380</td><td>180</td><td>600</td><td>+600</td><td>+540</td></tr>
+      <tr><td>M4</td><td>5.800</td><td>1.900</td><td>200</td><td>700</td><td>+1.000</td><td>+1.540</td></tr>
+      <tr><td>M5</td><td>7.400</td><td>2.430</td><td>200</td><td>800</td><td>+1.430</td><td>+2.970</td></tr>
+      <tr><td>M6</td><td>9.095</td><td>2.943</td><td>200</td><td>900</td><td>+1.843</td><td>+4.813</td></tr>
+      <tr><td>M7</td><td>10.500</td><td>3.420</td><td>220</td><td>1.000</td><td>+2.200</td><td>+7.013</td></tr>
+      <tr><td>M8</td><td>12.000</td><td>3.900</td><td>220</td><td>1.100</td><td>+2.580</td><td>+9.593</td></tr>
+      <tr><td>M9</td><td>13.500</td><td>4.420</td><td>240</td><td>1.300</td><td>+2.880</td><td>+12.473</td></tr>
+      <tr><td>M10</td><td>15.000</td><td>4.900</td><td>240</td><td>1.500</td><td>+3.160</td><td>+15.633</td></tr>
+      <tr><td>M11</td><td>16.500</td><td>5.400</td><td>260</td><td>1.700</td><td>+3.440</td><td>+19.073</td></tr>
+      <tr><td>M12</td><td>18.500</td><td>6.050</td><td>280</td><td>2.000</td><td>+3.770</td><td>+22.843</td></tr>
+    </tbody>
+  </table>
+  <p class="footnote">Asume crecimiento mensual ~12-15% sostenible (compuesto). Punto de equilibrio operativo: mes 3. Break-even total (recuperar inversión inicial €6.000): mes 4-5.</p>
+</section>
+
+<!-- ROADMAP -->
+<section id="roadmap" style="background:var(--ink);color:var(--paper);">
+  <span class="eyebrow" style="background:var(--yellow);color:var(--ink);">12 · Roadmap 12 meses</span>
+  <h2 style="color:var(--paper);">De idea a marca<br>en 4 fases.<span class="arrow">↗</span></h2>
+
+  <p class="lead" style="color:var(--paper);max-width:900px;">
+    Estructura tomada del PDF Brandy/Incubalia (p. 11 "Product Categories" — FASE 1, 2, 3) y
+    adaptada al ritmo real de un bootstrap. Cada fase tiene puerta de entrada (lo que debe estar
+    cerrado para pasar a la siguiente) y mide su éxito con 2-3 KPIs concretos.
+  </p>
+
+  <div class="timeline" style="margin-top:32px;">
+    <div class="phase">
+      <div class="phase-num red">F0</div>
+      <div>
+        <h4 style="color:var(--yellow);">Mes 0-1 · Setup · Bootstrap legal y operativo</h4>
+        <p style="color:var(--paper);">Registro marca EUIPO + OEPM. Compra dominio + redes. Producción 1er lote de 300 unidades HERO + 200 SPORT + 200 SMOKE + 200 DRIVE + 50 Discovery. Setup Shopify + apps. Diseño packaging final + foto producto + 4 vídeos seed.</p>
+        <ul class="tick" style="color:var(--paper);">
+          <li>Inversión: ~€3.500 (producción + setup web + diseño)</li>
+          <li>KPI: marca en EUIPO en trámite, web live, 1er lote en almacén</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-num red">F1</div>
+      <div>
+        <h4 style="color:var(--yellow);">Mes 1-3 · Lanzamiento · TikTok Shop + Shopify + Meta</h4>
+        <p style="color:var(--paper);">Activación canales. Primeros 100 pedidos. Iterar copy, ajustar packaging si reviews. Reclutar 5 microcreators. Lanzar suscripción a M2.</p>
+        <ul class="tick" style="color:var(--paper);">
+          <li>Inversión: ~€1.500 (ads + influencers + envíos)</li>
+          <li>KPI mes 3: GMV €4.200, 25 reviews, 10 suscritores</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-num red">F2</div>
+      <div>
+        <h4 style="color:var(--yellow);">Mes 3-6 · Validación · Amazon + Email/SMS + LIVE Shopping</h4>
+        <p style="color:var(--paper);">Alta Vendor Central, FBA primeros SKUs, Klaviyo flows automáticos (welcome, abandono, win-back), primer LIVE TikTok Shop. Posicionar Discovery como producto líder.</p>
+        <ul class="tick" style="color:var(--paper);">
+          <li>Inversión: ~€1.000 (Amazon FBA + ads + creativos)</li>
+          <li>KPI mes 6: GMV €9.000+, 80 reviews, 50 suscritores, EBITDA positivo</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-num red">F3</div>
+      <div>
+        <h4 style="color:var(--yellow);">Mes 6-9 · Expansión vertical · Velas + Mikados + Refill</h4>
+        <p style="color:var(--paper);">Siguiendo el roadmap de Brandy (p. 11): añadimos vela de fragancia POOF (siguiendo Rituals, Zara Home), mikado para hogar, y sistema refill (atacando JASPE). Diversificamos formato pero mantenemos los 4 universos.</p>
+        <ul class="tick" style="color:var(--paper);">
+          <li>Inversión: ~€2.500 (nuevos SKUs)</li>
+          <li>KPI mes 9: GMV €13.500, 150 reviews, 100 suscritores</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-num red">F4</div>
+      <div>
+        <h4 style="color:var(--yellow);">Mes 9-12 · Escalado · Internacional UE + Retail físico</h4>
+        <p style="color:var(--paper);">Apertura mercados: Portugal + Francia + Italia desde Shopify Markets. Primeros corners en tiendas físicas (Brandy p. 21 "Offline Strategy") con dealers del sector hogar. Brand awareness más fuerte.</p>
+        <ul class="tick" style="color:var(--paper);">
+          <li>Inversión: ~€2.000 (logística UE + producción ampliada)</li>
+          <li>KPI mes 12: GMV mensual €18.500+, presencia en 3 países UE, 5+ corners físicos</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INVERSIÓN -->
+<section id="inversion">
+  <span class="eyebrow">13 · Inversión y escenarios</span>
+  <h2>Tres escenarios.<br>Una recomendación clara.<span class="arrow">↗</span></h2>
+
+  <div class="grid grid-3" style="margin-top:40px;">
+    <div class="scenario-card">
+      <span class="pill yellow">CONSERVADOR</span>
+      <h3 style="margin-top:8px;">3.500€ · Validar mercado</h3>
+      <table style="background:transparent;border:none;">
+        <tr style="background:transparent;"><td style="border-color:var(--line);">Producción 1er lote</td><td style="border-color:var(--line);text-align:right;">€1.800</td></tr>
+        <tr style="background:transparent;"><td style="border-color:var(--line);">Setup web + dominio</td><td style="border-color:var(--line);text-align:right;">€350</td></tr>
+        <tr style="background:transparent;"><td style="border-color:var(--line);">Diseño + fotos</td><td style="border-color:var(--line);text-align:right;">€450</td></tr>
+        <tr style="background:transparent;"><td style="border-color:var(--line);">Registro marca</td><td style="border-color:var(--line);text-align:right;">€400</td></tr>
+        <tr style="background:transparent;"><td style="border-color:var(--line);">Ads 90d</td><td style="border-color:var(--line);text-align:right;">€500</td></tr>
+      </table>
+      <p style="margin-top:12px;font-size:13px;">Sólo HERO + SPORT. Sin Discovery. Sin Amazon. Sólo validar respuesta.</p>
+    </div>
+
+    <div class="scenario-card rec">
+      <span class="pill red">RECOMENDADO</span>
+      <h3 style="margin-top:8px;">6.000€ · Lanzar bien</h3>
+      <table style="background:transparent;border:none;">
+        <tr style="background:transparent;"><td style="border-color:var(--line);">Producción 1er lote completo</td><td style="border-color:var(--line);text-align:right;">€2.800</td></tr>
+        <tr style="background:transparent;"><td style="border-color:var(--line);">Setup web + apps</td><td style="border-color:var(--line);text-align:right;">€400</td></tr>
+        <tr style="background:transparent;"><td style="border-color:var(--line);">Diseño + foto + 4 vídeos</td><td style="border-color:var(--line);text-align:right;">€800</td></tr>
+        <tr style="background:transparent;"><td style="border-color:var(--line);">Registro marca EUIPO</td><td style="border-color:var(--line);text-align:right;">€1.000</td></tr>
+        <tr style="background:transparent;"><td style="border-color:var(--line);">Ads 90d</td><td style="border-color:var(--line);text-align:right;">€700</td></tr>
+        <tr style="background:transparent;"><td style="border-color:var(--line);">Buffer / micro-influencers</td><td style="border-color:var(--line);text-align:right;">€300</td></tr>
+      </table>
+      <p style="margin-top:12px;font-size:13px;"><strong>Catálogo completo</strong> (4 SKUs + Discovery), TikTok Shop + Shopify + Meta. Retorno esperado mes 4-5.</p>
+    </div>
+
+    <div class="scenario-card">
+      <span class="pill blue">AGRESIVO</span>
+      <h3 style="margin-top:8px;">10.000€ · Escalar desde día 1</h3>
+      <table style="background:transparent;border:none;">
+        <tr style="background:transparent;"><td style="border-color:var(--line);">Producción ampliada</td><td style="border-color:var(--line);text-align:right;">€4.000</td></tr>
+        <tr style="background:transparent;"><td style="border-color:var(--line);">Setup web premium</td><td style="border-color:var(--line);text-align:right;">€700</td></tr>
+        <tr style="background:transparent;"><td style="border-color:var(--line);">Producción contenido pro</td><td style="border-color:var(--line);text-align:right;">€1.500</td></tr>
+        <tr style="background:transparent;"><td style="border-color:var(--line);">Registro marca</td><td style="border-color:var(--line);text-align:right;">€1.000</td></tr>
+        <tr style="background:transparent;"><td style="border-color:var(--line);">Ads 90d + creators</td><td style="border-color:var(--line);text-align:right;">€2.000</td></tr>
+        <tr style="background:transparent;"><td style="border-color:var(--line);">Amazon FBA setup</td><td style="border-color:var(--line);text-align:right;">€800</td></tr>
+      </table>
+      <p style="margin-top:12px;font-size:13px;">Para si el inversor quiere acelerar y ya tiene OK del comité. Reduce el time-to-market a 60 días.</p>
+    </div>
+  </div>
+
+  <div class="card ink" style="margin-top:40px;">
+    <h3 style="color:var(--yellow);">Por qué el escenario recomendado (€6.000)</h3>
+    <p style="color:var(--paper);">
+      Es el punto exacto donde lanzas con catálogo completo (no quemar tracción con 1 solo SKU),
+      registras marca de verdad (no jugar a la ruleta), tienes 90 días de runway de ads para
+      encontrar tu ganador y aún te queda buffer para imprevistos. Por debajo de €3.500 estás
+      cojeando antes de empezar. Por encima de €10.000 estás invirtiendo en escala antes de
+      validar señal — y eso solo aplica si el inversor quiere ir a por todas. Para un primer round
+      del cofounder + Maria Selma + Enric Ginovart, <strong>€6.000 es la cifra</strong>.
+    </p>
+  </div>
+</section>
+
+<!-- NEXT STEPS -->
+<section id="proximos" style="background:var(--yellow);">
+  <span class="eyebrow" style="background:var(--ink);color:var(--yellow);">14 · Próximos pasos</span>
+  <h2>Esta semana.<br>Cinco acciones.<span class="arrow">↗</span></h2>
+
+  <div class="grid grid-2" style="margin-top:32px;gap:16px;">
+    <div class="card ink">
+      <div class="big-num yellow">01</div>
+      <h3 style="color:var(--paper);">Asegurar propiedad intelectual</h3>
+      <p style="color:var(--paper);">Comprar poof.es + poofbrand.com. Reservar @poof.es en TikTok + IG + YouTube + Pinterest. Iniciar trámite EUIPO clases 3+5+35 con abogado. <strong>Coste: ~€1.020 · Tiempo: 2 horas</strong></p>
+    </div>
+    <div class="card ink">
+      <div class="big-num yellow">02</div>
+      <h3 style="color:var(--paper);">Cerrar fórmula con distribuidor</h3>
+      <p style="color:var(--paper);">Confirmar 4 fórmulas (HERO, SPORT, SMOKE con ciclodextrina, DRIVE) con el partner químico. Aprobar mínimo de pedido y leadtime. <strong>Coste: 0€ (negociación) · Tiempo: 1 semana</strong></p>
+    </div>
+    <div class="card ink">
+      <div class="big-num yellow">03</div>
+      <h3 style="color:var(--paper);">Aprobar diseño packaging</h3>
+      <p style="color:var(--paper);">Validar las 4 etiquetas + caja Discovery con maqueta digital final. Aprobado el lote físico se imprime en 2 semanas. <strong>Coste: ~€400 diseño · Tiempo: 5 días</strong></p>
+    </div>
+    <div class="card ink">
+      <div class="big-num yellow">04</div>
+      <h3 style="color:var(--paper);">Levantar la web (Shopify) en modo "coming soon"</h3>
+      <p style="color:var(--paper);">Coming soon con formulario de email para conseguir 100 emails antes del lanzamiento. <strong>Coste: €29 + €5 dominio · Tiempo: 3 días</strong></p>
+    </div>
+    <div class="card ink">
+      <div class="big-num yellow">05</div>
+      <h3 style="color:var(--paper);">Producir contenido seed (10 piezas)</h3>
+      <p style="color:var(--paper);">4 vídeos TikTok + 3 stills + 3 stories teaser. Listos antes de que el producto esté en almacén para arrancar canales el día 1. <strong>Coste: €0 (tú+CapCut) · Tiempo: 1 semana</strong></p>
+    </div>
+    <div class="card ink">
+      <div class="big-num yellow">06</div>
+      <h3 style="color:var(--paper);">Bonus: presentar este plan al inversor</h3>
+      <p style="color:var(--paper);">Imprimir este documento + el mockup web. Sesión 1h. Cerrar capital, definir governance (Brandy/Incubalia/cofounder), arrancar Fase 0. <strong>Coste: 0€ · Tiempo: 1 hora</strong></p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="brand">POOF<span class="asterisk">*</span></div>
+  <p style="font-size:14px;color:var(--paper);opacity:.7;max-width:600px;margin:0 auto 12px;">
+    Plan maestro v7 · Junio 2026 · Incubalia × Brandy & Co. ·<br>
+    Documento confidencial. No difundir sin consentimiento.
+  </p>
+  <p style="font-size:12px;color:var(--paper);opacity:.5;">
+    Próximo archivo: <strong>POOF_web_mockup.html</strong> · navegable
+  </p>
+</footer>
+
+</body>
+</html>
